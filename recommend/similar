@@ -11,7 +11,7 @@ class RatingSet
     data.each do |r|
       rater, thing, rating = r
       @ratings[rater] ||= {}
-      @ratings[rater][thing] = rating
+      @ratings[rater][thing] = rating.to_i
       @totals[rater] ||= 0
       @totals[rater] += 1
     end
@@ -22,7 +22,7 @@ class RatingSet
   end
   
   # calculate simple jaccard similarity
-  def similarity(a, b)
+  def jsimilarity(a, b)
     total = 0
     similar = 0
     @ratings[a].each do |thing,rating|
@@ -35,12 +35,35 @@ class RatingSet
     similar.to_f / total.to_f
   end
 
+  # calculate euclidiean distance similarity
+  def esimilarity(a, b)
+    common = 0
+    sim = 0.0
+    max_common = [@ratings[a].keys.size, @ratings[b].keys.size].min
+    @ratings[a].each do |thing,rating|
+      rb = @ratings[b][thing]
+      if rb
+        common += 1
+        sim += (rating - rb) ** 2
+      end
+    end
+    if common > 0
+      sim = Math.sqrt(sim / common)
+      sim = 1.0 - Math.tanh(sim)
+      sim * common / max_common
+    else
+      0
+    end
+  end
+
 end
 
 d = RatingSet.new(ARGF)
 raters = d.raters.sort
 subject, *others = raters
 others.each do |o|
-  s = d.similarity(subject, o)
-  printf("%s %s %.2f\n", subject, o, s)
+  js = d.jsimilarity(subject, o)
+  es = d.esimilarity(subject, o)
+  printf("%s %s jsim %.4f\n", subject, o, js)
+  printf("%s %s esim %.4f\n", subject, o, es)
 end
