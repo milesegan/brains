@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+class RatingSet
+
+  attr_reader :ratings
+  def initialize(lines)
+    data = lines.collect { |i| i.chomp.split(":") }
+    @ratings = {}
+    @totals = {}
+    @similarity = {}
+    data.each do |r|
+      rater, thing, rating = r
+      @ratings[rater] ||= {}
+      @ratings[rater][thing] = rating
+      @totals[rater] ||= 0
+      @totals[rater] += 1
+    end
+  end
+
+  def raters
+    @totals.keys
+  end
+  
+  # calculate simple jaccard similarity
+  def similarity(a, b)
+    total = 0
+    similar = 0
+    @ratings[a].each do |thing,rating|
+      rb = @ratings[b][thing]
+      if rb
+        total += 1
+        similar += 1 if rb == rating
+      end
+    end
+    similar.to_f / total.to_f
+  end
+
+end
+
+d = RatingSet.new(ARGF)
+raters = d.raters.sort
+subject, *others = raters
+others.each do |o|
+  s = d.similarity(subject, o)
+  printf("%s %s %.2f\n", subject, o, s)
+end
