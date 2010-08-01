@@ -84,6 +84,8 @@ class RatingSet(val lines:Seq[String]) {
 }
 
 var d = new RatingSet(io.Source.stdin.getLines.toSeq)
+
+// calc user-based sim
 val raters = d.raters.toSeq.sorted
 val subject = raters.head
 val others = raters.tail
@@ -92,4 +94,15 @@ for (o <- others) {
   val es = d.esimilarity(subject, o, UserMode)
   printf("%s %s jsim %.4f\n", subject, o, js)
   printf("%s %s esim %.4f\n", subject, o, es)
+}
+
+// calc item-based sim
+var things = d.things.toSeq.sorted
+var first = things.head
+var rest = things.tail
+for (t <- rest) {
+  val js = d.jsimilarity(first, t, ThingMode)
+  val es = d.esimilarity(first, t, ThingMode)
+  printf("%s %s jsim %.4f\n", first, t, js)
+  printf("%s %s esim %.4f\n", first, t, es)
 }
