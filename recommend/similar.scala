@@ -3,39 +3,54 @@
 
 import collection.mutable
 
-sealed trait Mode
-case object UserMode extends Mode
-case object ThingMode extends Mode
+abstract class SimilarityModel {
+  val ratings = mutable.Map[String,mutable.Map[String,Int]]()
+  def addRating(user:String, item:String, rating:Int)
+  def rating(key:String, value:String):Option[Int] = {
+    if (ratings.contains(key))
+      ratings(key).get(value)
+    else
+      None
+  }
+}
 
-class RatingSet(val lines:Seq[String]) {
+class UserSimilarityModel extends SimilarityModel {
+  def addRating(user:String, item:String, rating:Int) = {
+    ratings.getOrElseUpdate(user, mutable.Map[String,Int]())
+    ratings(user)(item) = rating
+  }
+}
+
+class ItemSimilarityModel extends SimilarityModel {
+  def addRating(user:String, item:String, rating:Int) = {
+    ratings.getOrElseUpdate(item, mutable.Map[String,Int]())
+    ratings(item)(user) = rating
+  }
+}
+
+class RatingSet(val lines:Seq[String], val model:SimilarityModel) {
 
   val data = lines.map(_.trim.split(":"))
-  val userRatings = mutable.Map[String,mutable.Map[String,Int]]()
-  val thingRatings = mutable.Map[String,mutable.Map[String,Int]]()
   val totals = mutable.Map[String,Int]()
 
   for (r <- data) {
     var rater = r(0)
     var thing = r(1)
     var rating = r(2)
-    userRatings.getOrElseUpdate(rater, mutable.Map[String,Int]())
-    userRatings(rater)(thing) = rating.toInt
-    thingRatings.getOrElseUpdate(thing, mutable.Map[String,Int]())
-    thingRatings(thing)(rater) = rating.toInt
+    model.addRating(rater, thing, rating.toInt)
     totals.getOrElseUpdate(rater, 0)
     totals(rater) += 1
   }
 
   def raters = totals.keySet
-  def things = thingRatings.keySet
+  def things = model.ratings.keySet
 
   // calculate simple jaccard similarity
-  def jsimilarity(a:String, b:String, mode:Mode):Double = {
+  def jsimilarity(a:String, b:String):Double = {
     var total = 0
     var similar = 0f
-    val ratings = ratingHash(mode)
-    for ((thing, rating) <- ratings(a)) {
-      ratings(b).get(thing) match {
+    for ((thing, rating) <- model.ratings(a)) {
+      model.rating(b, thing) match {
         case e:Some[_] => {
           total += 1
           if (e.get == rating) {
@@ -49,13 +64,12 @@ class RatingSet(val lines:Seq[String]) {
   }
 
   // calculate euclidiean distance similarity
-  def esimilarity(a:String, b:String, mode:Mode):Double = {
+  def esimilarity(a:String, b:String):Double = {
     var common = 0
     var sim = 0.0d
-    val ratings = ratingHash(mode)
-    var max_common = math.min(ratings(a).keys.size, ratings(b).keys.size)
-    for ((thing, rating) <- ratings(a)) {
-      ratings(b).get(thing) match {
+    var max_common = math.min(model.ratings(a).keys.size, model.ratings(b).keys.size)
+    for ((thing, rating) <- model.ratings(a)) {
+      model.rating(b, thing) match {
         case e:Some[_] => {
           common += 1
           sim += math.pow(rating - e.get, 2)
@@ -72,37 +86,29 @@ class RatingSet(val lines:Seq[String]) {
       0
     }
   }
-
-  private 
-  def ratingHash(mode:Mode) = {
-    mode match {
-      case UserMode => userRatings
-      case ThingMode => thingRatings
-    }
-  }
-
 }
 
-var d = new RatingSet(io.Source.stdin.getLines.toSeq)
+val lines = io.Source.stdin.getLines.toSeq
 
 // calc user-based sim
-val raters = d.raters.toSeq.sorted
+val userSet = new RatingSet(lines, new UserSimilarityModel)
+val raters = userSet.raters.toSeq.sorted
 val subject = raters.head
 val others = raters.tail
 for (o <- others) {
-  val js = d.jsimilarity(subject, o, UserMode)
-  val es = d.esimilarity(subject, o, UserMode)
+  val js = userSet.jsimilarity(subject, o)
+  val es = userSet.esimilarity(subject, o)
   printf("%s %s jsim %.4f\n", subject, o, js)
   printf("%s %s esim %.4f\n", subject, o, es)
 }
 
 // calc item-based sim
-var things = d.things.toSeq.sorted
+val itemSet = new RatingSet(lines, new UserSimilarityModel)
+var things = itemSet.things.toSeq.sorted
 var first = things.head
 var rest = things.tail
-for (t <- rest) {
-  val js = d.jsimilarity(first, t, ThingMode)
-  val es = d.esimilarity(first, t, ThingMode)
-  printf("%s %s jsim %.4f\n", first, t, js)
-  printf("%s %s esim %.4f\n", first, t, es)
+val esims = rest.map(i => (i, itemSet.esimilarity(first, i))).sortBy(_._2).reverse
+println("item-based recs for " + first)
+for (sim <- esims) {
+  println(sim)
 }
