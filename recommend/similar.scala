@@ -50,23 +50,7 @@ class RatingSet(val data:Seq[Seq[String]], val model:SimilarityModel) {
   lazy val users = model.users.toSeq.sorted
   lazy val items = model.items.toSeq.sorted
 
-  // calculate simple jaccard similarity
-  def jsimilarity(a:String, b:String):Double = {
-    var total = 0
-    var similar = 0f
-    for ((item, rating) <- model.ratings(a)) {
-      model.rating(b, item) match {
-        case e:Some[_] => {
-          total += 1
-          if (e.get == rating) {
-            similar += 1
-          }
-        }
-        case _ => ()
-      }
-    }
-    similar.toDouble / total.toDouble
-  }
+  def rating(a:String, b:String) = model.rating(a, b)
 
   // calculate euclidiean distance similarity
   def esimilarity(a:String, b:String):Double = {
@@ -93,14 +77,46 @@ class RatingSet(val data:Seq[Seq[String]], val model:SimilarityModel) {
   }
 }
 
-val lines = io.Source.stdin.getLines.toSeq
-val data = lines.map(_.trim.split(":").toSeq)
-
 def recommendItems(user:String, ratings:RatingSet) = {
   var items = ratings.items.toSeq.sorted
   var first = items.head
   var rest = items.tail
   rest.map(i => (i, ratings.esimilarity(first, i))).sortBy(_._2).reverse
+}
+
+def estimateUserBasedRating(user:String, item:String, ratings:RatingSet):Double = {
+  var estimate = Double.NaN
+  var simSum = 0.0
+  var weightSum = 0.0
+  val userRating = ratings.rating(user, item)
+  if (userRating.nonEmpty) {
+    return userRating.get.toDouble
+  }
+  for (other <- ratings.users) {
+    val otherRating = ratings.rating(other, item)
+    if (otherRating.nonEmpty) {
+      val sim = ratings.esimilarity(user, other)
+      val weight = sim * otherRating.get
+      weightSum += weight
+      simSum += sim
+    }
+  }
+  if (simSum > 0.0)
+    weightSum / simSum
+  else
+    Double.NaN
+}
+
+val lines = io.Source.stdin.getLines.toSeq
+val data = lines.map(_.trim.split(":").toSeq)
+
+// calc item-based rec
+val itemSet = new RatingSet(data, new ItemSimilarityModel)
+val user = itemSet.users.head
+val recs = recommendItems(user, itemSet)
+println("item-based recs for " + user)
+for (rec <- recs) {
+  println(rec)
 }
 
 // calc user-based sim
@@ -109,17 +125,13 @@ val users = userSet.users.toSeq.sorted
 val subject = users.head
 val others = users.tail
 for (o <- others) {
-  val js = userSet.jsimilarity(subject, o)
   val es = userSet.esimilarity(subject, o)
-  printf("%s %s jsim %.4f\n", subject, o, js)
   printf("%s %s esim %.4f\n", subject, o, es)
 }
 
-// calc item-based sim
-val itemSet = new RatingSet(data, new ItemSimilarityModel)
-val user = itemSet.users.head
-val recs = recommendItems(user, itemSet)
-println("item-based recs for " + user)
-for (rec <- recs) {
-  println(rec)
+// estimate ratings
+for (item <- itemSet.items) {
+  val estimate = estimateUserBasedRating(user, item, userSet)
+  println("estimated rating for %s of %s is %f".format(user, item, estimate))
 }
+
