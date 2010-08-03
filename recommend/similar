@@ -2,38 +2,81 @@
 
 class RatingSet
 
-  attr_reader :ratings
-  def initialize(lines)
-    data = lines.collect { |i| i.chomp.split(":") }
-    @ratings = {}
-    @totals = {}
-    @items = {}
+  attr_reader :user_ratings, :item_ratings
+  def initialize(data)
+    @user_ratings = {}
+    @item_ratings = {}
     @similarity = {}
     data.each do |r|
       user, item, rating = r
-      @ratings[user] ||= {}
-      @ratings[user][item] = rating.to_i
-      @totals[user] ||= 0
-      @totals[user] += 1
-      @items[item] = true
+      @user_ratings[user] ||= {}
+      @user_ratings[user][item] = rating.to_i
+      @item_ratings[item] ||= {}
+      @item_ratings[item][user] = rating.to_i
     end
   end
 
   def users
-    @totals.keys
+    @user_ratings.keys
   end
 
   def items
-    @items.keys
+    @item_ratings.keys
   end
   
-  # calculate euclidiean distance similarity
-  def similarity(a, b)
+  def user_similarity(a, b)
+    similarity(a, b, user_ratings)
+  end
+
+  def item_similarity(a, b)
+    similarity(a, b, item_ratings)
+  end
+
+  def estimate_user_based_rating(user, item)
+    return user_ratings[user][item] if user_ratings[user][item]
+
+    sim_sum = weight_sum = 0.0
+    users.each do |other|
+      other_rating = user_ratings[other][item]
+      next unless other_rating
+      sim = user_similarity(user, other)
+      weight = sim * other_rating
+      sim_sum += sim
+      weight_sum += weight
+    end
+    if sim_sum > 0.0
+      weight_sum / sim_sum
+    else
+      nil
+    end
+  end
+
+  def estimate_item_based_rating(user, item)
+    return user_ratings[user][item] if user_ratings[user][item]
+
+    sim_sum = weight_sum = 0.0
+    items.each do |other|
+      other_rating = user_ratings[user][other]
+      next unless other_rating
+      sim = item_similarity(item, other)
+      weight = sim * other_rating
+      weight_sum += weight
+      sim_sum += sim
+    end
+    if sim_sum > 0.0
+      weight_sum / sim_sum
+    else
+      nil
+    end
+  end
+
+  protected
+  def similarity(a, b, ratings)
     common = 0
     sim = 0.0
-    max_common = [@ratings[a].keys.size, @ratings[b].keys.size].min
-    @ratings[a].each do |thing,rating|
-      rb = @ratings[b][thing]
+    max_common = [ratings[a].keys.size, ratings[b].keys.size].min
+    ratings[a].each do |thing,rating|
+      rb = ratings[b][thing]
       if rb
         common += 1
         sim += (rating - rb) ** 2
@@ -46,37 +89,38 @@ class RatingSet
     else
       0
     end
-  end
-
+  end            
 end
 
-def estimate_rating(user, item, set)
-  sim_sum = weight_sum = 0.0
-  return set.ratings[user][item] if set.ratings[user][item]
-  set.users.each do |other|
-    other_rating = set.ratings[other][item]
-    next unless other_rating
-    sim = set.similarity(user, other)
-    weight = sim * other_rating
-    sim_sum += sim
-    weight_sum += weight
-  end
-  if sim_sum > 0
-    weight_sum / sim_sum
-  else
-    nil
-  end
-end
+data = ARGF.collect { |i| i.strip.split(":") }
+set = RatingSet.new(data)
 
-d = RatingSet.new(ARGF)
-users = d.users.sort
-subject, *others = users
+# calc user-based sims and recs
+users = set.users.sort
+user, *others = users
 others.each do |o|
-  sim = d.similarity(subject, o)
-  printf("%s %s esim %.4f\n", subject, o, sim)
+  sim = set.user_similarity(user, o)
+  printf("%s %s similar %.4f\n", user, o, sim)
 end
+puts
 
-d.items.each do |item|
-  rating = estimate_rating(subject, item, d)
-  puts "estimate rating #{subject} #{item} #{rating}"
+set.items.each do |item|
+  rating = set.estimate_user_based_rating(user, item)
+  printf("user-based estimate rating %s %s %.2f\n", user, item, rating)
 end
+puts
+
+# calc item-based sims and recs
+items = set.items.sort
+item, *others = items
+others.each do |o|
+  sim = set.item_similarity(item, o)
+  printf("%s %s similar %.4f\n", item, o, sim)
+end
+puts
+
+set.items.each do |item|
+  rating = set.estimate_item_based_rating(user, item)
+  printf("item-based estimate rating %s %s %.2f\n", user, item, rating)
+end
+puts

@@ -38,6 +38,6 @@ srand(Time.now.to_i)
 people.each do |person|
   schools = schools.sort_by { rand }
   (0..4).each do |i|
-    puts [person, schools[i], rand(5) + 1].join(":")
+    puts [person, schools[i], rand(3) + 1].join(":")
   end
 end
