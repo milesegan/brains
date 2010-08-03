@@ -11,20 +11,22 @@ Platonism
 Pragmatism
 Skepticism
 Thomism
+Dialectisism
+Atomism
+Epicureanism
+Hedonism
+Utilitarianism
 SCHOOLS
 
 people = <<PEOPLE
-Abelard
 Adorno
 Aquinas
-Arendt
 Aristotle
 Augustine
 Bacon
 Barthes
 Bataille
 Baudrillard
-Beauvoir
 Benjamin
 Berkeley
 PEOPLE
@@ -35,7 +37,7 @@ srand(Time.now.to_i)
 
 people.each do |person|
   schools = schools.sort_by { rand }
-  (0..5).each do |i|
-    puts [person, schools[i], rand(3) + 1].join(":")
+  (0..4).each do |i|
+    puts [person, schools[i], rand(5) + 1].join(":")
   end
 end

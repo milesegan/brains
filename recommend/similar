@@ -7,36 +7,28 @@ class RatingSet
     data = lines.collect { |i| i.chomp.split(":") }
     @ratings = {}
     @totals = {}
+    @items = {}
     @similarity = {}
     data.each do |r|
-      rater, thing, rating = r
-      @ratings[rater] ||= {}
-      @ratings[rater][thing] = rating.to_i
-      @totals[rater] ||= 0
-      @totals[rater] += 1
+      user, item, rating = r
+      @ratings[user] ||= {}
+      @ratings[user][item] = rating.to_i
+      @totals[user] ||= 0
+      @totals[user] += 1
+      @items[item] = true
     end
   end
 
-  def raters
+  def users
     @totals.keys
   end
-  
-  # calculate simple jaccard similarity
-  def jsimilarity(a, b)
-    total = 0
-    similar = 0
-    @ratings[a].each do |thing,rating|
-      rb = @ratings[b][thing]
-      if rb
-        total += 1
-        similar += 1 if rb == rating
-      end
-    end
-    similar.to_f / total.to_f
-  end
 
+  def items
+    @items.keys
+  end
+  
   # calculate euclidiean distance similarity
-  def esimilarity(a, b)
+  def similarity(a, b)
     common = 0
     sim = 0.0
     max_common = [@ratings[a].keys.size, @ratings[b].keys.size].min
@@ -48,8 +40,8 @@ class RatingSet
       end
     end
     if common > 0
-      sim = Math.sqrt(sim / common)
-      sim = 1.0 - Math.tanh(sim)
+      distance = Math.sqrt(sim / common)
+      sim = 1.0 - Math.tanh(distance)
       sim * common / max_common
     else
       0
@@ -58,12 +50,33 @@ class RatingSet
 
 end
 
+def estimate_rating(user, item, set)
+  sim_sum = weight_sum = 0.0
+  return set.ratings[user][item] if set.ratings[user][item]
+  set.users.each do |other|
+    other_rating = set.ratings[other][item]
+    next unless other_rating
+    sim = set.similarity(user, other)
+    weight = sim * other_rating
+    sim_sum += sim
+    weight_sum += weight
+  end
+  if sim_sum > 0
+    weight_sum / sim_sum
+  else
+    nil
+  end
+end
+
 d = RatingSet.new(ARGF)
-raters = d.raters.sort
-subject, *others = raters
+users = d.users.sort
+subject, *others = users
 others.each do |o|
-  js = d.jsimilarity(subject, o)
-  es = d.esimilarity(subject, o)
-  printf("%s %s jsim %.4f\n", subject, o, js)
-  printf("%s %s esim %.4f\n", subject, o, es)
+  sim = d.similarity(subject, o)
+  printf("%s %s esim %.4f\n", subject, o, sim)
+end
+
+d.items.each do |item|
+  rating = estimate_rating(subject, item, d)
+  puts "estimate rating #{subject} #{item} #{rating}"
 end
