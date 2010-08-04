@@ -8,23 +8,41 @@ class MovieLens(userFile:io.BufferedSource, movieFile:io.BufferedSource, ratingF
   val userRatings = mut.Map[Int, mut.Map[Int,Int]]()
   val movieRatings = mut.Map[Int, mut.Map[Int,Int]]()
   val movies = mut.Map[Int, String]()
+  val similarities = mut.Map[Int,mut.Map[Int,Double]]()
+  val separator = """\|"""
 
   userFile.getLines.foreach { i =>
-    val parts = i.split("::")
+    val parts = i.split(separator)
     userRatings.getOrElseUpdate(parts(0).toInt, mut.Map[Int,Int]())
   }
 
   movieFile.getLines.foreach { i =>
-    val parts = i.split("::")
+    val parts = i.split(separator)
     movies(parts(0).toInt) = parts(1)
     movieRatings.getOrElseUpdate(parts(0).toInt, mut.Map[Int,Int]())
   }
 
   ratingFile.getLines.foreach { i =>
-    val parts = i.split("::").map(_.toInt)
+    val parts = i.split("""\s""").map(_.toInt)
     movieRatings(parts(1))(parts(0)) = parts(2)
     userRatings(parts(0))(parts(1)) = parts(2)
   }
+
+  /*
+  println(new java.util.Date)
+  for (i <- 0 until movies.keySet.size) {
+    similarities(i) = mut.Map[Int,Double]()
+    for (j <- i until movies.keySet.size) {
+      if (i == j) {
+        similarities(i)(j) = 1
+      }
+      else {
+        similarities(i)(j) = similarity(i, j)
+      }
+    }
+  }
+  println(new java.util.Date)
+  */
 
   def similarity(a:Int, b:Int):Double = {
     val ratingsA = movieRatings.getOrElse(a, mut.Map[Int,Int]())
@@ -118,7 +136,7 @@ def main(args:Array[String]) = {
     sims = sims :+ (sim, set.movies(m))
   }
   sims.sorted.foreach { i =>
-    printf("%3f %s\n", i._1, i._2)
+    //printf("%3f %s\n", i._1, i._2)
   }
 }
 
