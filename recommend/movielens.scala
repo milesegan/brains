@@ -1,143 +1,93 @@
-#!/usr/bin/env scala
-!#
-
 import collection.{ mutable => mut }
 
-class MovieLens(userFile:io.BufferedSource, movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
+class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
   
-  val userRatings = mut.Map[Int, mut.Map[Int,Int]]()
-  val movieRatings = mut.Map[Int, mut.Map[Int,Int]]()
+  val userRatings = mut.Map[Int, mut.Map[Int,Double]]()
+  val movieRatings = mut.Map[Int, mut.Map[Int,Double]]()
   val movies = mut.Map[Int, String]()
   val similarities = mut.Map[Int,mut.Map[Int,Double]]()
   val separator = """\|"""
 
-  userFile.getLines.foreach { i =>
-    val parts = i.split(separator)
-    userRatings.getOrElseUpdate(parts(0).toInt, mut.Map[Int,Int]())
+  for (line <- movieFile.getLines) {
+    val num :: name :: rest = line.split(separator).toList
+    movies(num.toInt) = name
+    movieRatings.getOrElseUpdate(num.toInt, mut.Map[Int,Double]())
   }
 
-  movieFile.getLines.foreach { i =>
-    val parts = i.split(separator)
-    movies(parts(0).toInt) = parts(1)
-    movieRatings.getOrElseUpdate(parts(0).toInt, mut.Map[Int,Int]())
+  for (line <- ratingFile.getLines) {
+    val user :: movie :: rating :: rest = line.split("""\s""").map(_.toInt).toList
+    movieRatings(movie)(user) = rating
+    userRatings.getOrElseUpdate(user, mut.Map[Int,Double]())
+    userRatings(user)(movie) = rating
   }
-
-  ratingFile.getLines.foreach { i =>
-    val parts = i.split("""\s""").map(_.toInt)
-    movieRatings(parts(1))(parts(0)) = parts(2)
-    userRatings(parts(0))(parts(1)) = parts(2)
-  }
-
-  /*
-  println(new java.util.Date)
-  for (i <- 0 until movies.keySet.size) {
-    similarities(i) = mut.Map[Int,Double]()
-    for (j <- i until movies.keySet.size) {
-      if (i == j) {
-        similarities(i)(j) = 1
-      }
-      else {
-        similarities(i)(j) = similarity(i, j)
-      }
-    }
-  }
-  println(new java.util.Date)
-  */
 
   def similarity(a:Int, b:Int):Double = {
-    val ratingsA = movieRatings.getOrElse(a, mut.Map[Int,Int]())
-    val ratingsB = movieRatings.getOrElse(b, mut.Map[Int,Int]())
+    val ratingsA = movieRatings.getOrElse(a, mut.Map[Int,Double]())
+    val ratingsB = movieRatings.getOrElse(b, mut.Map[Int,Double]())
     if (ratingsA.isEmpty || ratingsB.isEmpty) return 0.0
 
-    val meanAllA = mean(ratingsA.values.toSeq)
-    val meanAllB = mean(ratingsB.values.toSeq)
-    var commonA = Seq[Double]()
-    var commonB = Seq[Double]()
+    val meanAllA = mean(ratingsA.values.toArray)
+    val meanAllB = mean(ratingsB.values.toArray)
 
-    // find ratings of other movies by same user
-    // subtract mean and store deltas
-    movieRatings(a).foreach { kv =>
-      movieRatings(b).get(kv._1) match {
-        case Some(v) => {
-          commonA = commonA :+ (kv._2 - meanAllA)
-          commonB = commonB :+ (v - meanAllB)
-        }
-        case None => ()
-      }
-    }
+    // find ratings of other movies by same user, subtract mean and store deltas
+    val commons = for { (user,rating) <- movieRatings(a)
+                        bRating <- movieRatings(b).get(user) 
+                     } yield (rating, bRating)
+    val (commonA, commonB) = commons.unzip
     if (commonA.size < 3) return 0.0
 
-    pearsonCorrelation(commonA, commonB)
+    pearsonCorrelation(commonA.toArray, commonB.toArray)
   }
 
-  def pearsonCorrelation(a:Seq[Double], b:Seq[Double]):Double = {
+  def pearsonCorrelation(a:Array[Double], b:Array[Double]):Double = {
     if (a.isEmpty) return 0.0 // no overlapping ratings
 
-    var xy = 0.0d
-    val meanA = mean(a)
-    var devA = standardDeviation(meanA, a)
-    val meanB = mean(b)
-    var devB = standardDeviation(meanB, b)
+    var (meanA, devA) = meanAndDev(a)
+    var (meanB, devB) = meanAndDev(b)
+    val diffsA = a.map(_ - meanA)
+    val diffsB = b.map(_ - meanB)
+    val xy = diffsA.zip(diffsB).map(i => i._1 * i._2).reduceLeft(_ + _)
 
-    for (i <- 0 until a.size) {
-      xy += (a(i) - meanA) * (b(i) - meanB)
-    }
-    
     if (devA == 0.0 || devB == 0.0) {
-      var indA = 0.0
-      var indB = 0.0
-      (1 until a.size).foreach { i =>
-        indA += a(i - 1) - a(i)
-        indB += b(i - 1) - b(i)
-      }
+      val sameA = a.forall(_ == a.head)
+      val sameB = b.forall(_ == b.head)
+      if (sameA && sameB) return 1.0 // degenerate correlation, all points the same
 
-      if (indA == 0.0 && indB == 0.0) {
-        // degenerate correlation, all points the same
-        return 1.0
-      }
-      else if (devA == 0) {
+      if (devA == 0) 
         // otherwise either a or b vary
         devA = devB
-      }
-      else {
+      else
         devB = devA
-      }
     }
 
     xy / (a.size * devA * devB)
   }
 
-  def mean[T <% Double](values:Seq[T]):Double = {
-    val total = values.foldLeft(0d)(_ + _)
-    total / values.size
-  }
+  def mean(values:Array[Double]):Double = values.foldLeft(0d)(_ + _) / values.size
 
-  def standardDeviation[T <% Double](mean:Double, values:Seq[T]):Double = {
-    val squares = values.map(v => (v - mean) * (v - mean))
-    val sum = squares.foldLeft(0d)(_ + _)
-    math.sqrt(sum / values.size)
+  def meanAndDev(values:Array[Double]):(Double,Double) = {
+    val meanV = mean(values)
+    val squares = values.map(v => (v - meanV) * (v - meanV)).reduceLeft(_ + _)
+    (meanV, math.sqrt(squares / values.size))
   }
 }
 
-def openFile(path:String):io.BufferedSource = {
-  new io.BufferedSource(new java.io.FileInputStream(path))
-}
-
-def main(args:Array[String]) = {
-  val set = new MovieLens(
-    openFile(args(0)),
-    openFile(args(1)),
-    openFile(args(2)))
-
-  val movies = set.movies.keySet
-  var sims = Seq[Tuple2[Double,String]]()
-  movies.foreach { m =>
-    val sim = set.similarity(86, m)
-    sims = sims :+ (sim, set.movies(m))
+object MovieLens {
+  def openFile(path:String):io.BufferedSource = {
+    new io.BufferedSource(new java.io.FileInputStream(path))
   }
-  sims.sorted.foreach { i =>
-    //printf("%3f %s\n", i._1, i._2)
+
+  def main(args:Array[String]) = {
+    val set = new MovieLens(openFile(args(0)), openFile(args(1)))
+
+    val movies = set.movies.keySet
+    var sims = Seq[Tuple2[Double,String]]()
+    movies.foreach { m =>
+      val sim = set.similarity(86, m)
+                    sims = sims :+ (sim, set.movies(m))
+                  }
+    sims.sorted.foreach { i =>
+      printf("%3f %s\n", i._1, i._2)
+    }
   }
 }
-
-main(args)

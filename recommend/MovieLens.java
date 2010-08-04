@@ -142,21 +142,3 @@ class MovieLens {
     }
 
 }
-
-/*
-def main(args:Array[String]) = {
-  val set = new MovieLens(
-    openFile(args(0)),
-    openFile(args(1)),
-    openFile(args(2)))
-
-  val movies = set.movies.keySet
-  var sims = Seq[Tuple2[Double,String]]()
-  movies.foreach { m =>
-    val sim = set.similarity(86, m)
-    sims = sims :+ (sim, set.movies(m))
-  }
-  sims.sorted.foreach { i =>
-    //printf("%3f %s\n", i._1, i._2)
-  }
-*/
