@@ -1,10 +1,8 @@
-import collection.{ mutable => mut }
+import collection.immutable.HashMap
+import collection.mutable.{ Map => MMap }
 
 class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
   
-  val userRatings = mut.Map[Int, mut.Map[Int,Double]]()
-  val movieRatings = mut.Map[Int, mut.Map[Int,Double]]()
-  val similarities = mut.Map[Int,mut.Map[Int,Double]]()
   val separator = """\|"""
 
   val movies = movieFile.getLines.map { line =>
@@ -12,54 +10,49 @@ class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
     id.toInt -> title
   }.toMap
 
-  for (line <- ratingFile.getLines) {
-    val user :: movie :: rating :: rest = line.split("""\s""").map(_.toInt).toList
-    movieRatings.getOrElseUpdate(movie.toInt, mut.Map[Int,Double]())
-    movieRatings(movie)(user) = rating
-    userRatings.getOrElseUpdate(user, mut.Map[Int,Double]())
-    userRatings(user)(movie) = rating
+  val (userRatings, movieRatings) = {
+    val userBuilder = MMap[Int,MMap[Int,Double]]()
+    val movieBuilder = MMap[Int,MMap[Int,Double]]()
+    
+    for (line <- ratingFile.getLines) {
+      val user :: movie :: rating :: rest = line.split("""\s""").map(_.toInt).toList
+      movieBuilder.getOrElseUpdate(movie.toInt, MMap[Int,Double]())
+      movieBuilder(movie)(user) = rating
+      userBuilder.getOrElseUpdate(user, MMap[Int,Double]())
+      userBuilder(user)(movie) = rating
+    }
+    (userBuilder.toMap, movieBuilder.toMap)
   }
 
   def similarity(a:Int, b:Int):Double = {
-    val ratingsA = movieRatings.get(a)
-    val ratingsB = movieRatings.get(b)
-    if (ratingsA.isEmpty || ratingsB.isEmpty) return 0.0
+    val ratingsA = movieRatings.get(a).getOrElse { return 0.0 }
+    val ratingsB = movieRatings.get(b).getOrElse { return 0.0 }
 
-    val meanAllA = mean(ratingsA.get.values.toArray)
-    val meanAllB = mean(ratingsB.get.values.toArray)
+    val meanAllA = mean(ratingsA.values.toArray)
+    val meanAllB = mean(ratingsB.values.toArray)
 
     // find ratings of both movies by the same users, subtract mean and store deltas
-    val commonUsers = movieRatings(a).keySet & movieRatings(b).keySet
+    val commonUsers = ratingsA.keySet & ratingsB.keySet
     if (commonUsers.size < 3) return 0.0
-    val commonRatings = commonUsers.toSeq.map(u => 
-      (movieRatings(a)(u) - meanAllA, movieRatings(b)(u) - meanAllB))
+    val commonRatings = commonUsers.toSeq.map(u => (ratingsA(u) - meanAllA, ratingsB(u) - meanAllB))
     val (commonA, commonB) = commonRatings.unzip
 
-    pearsonCorrelation(commonA.toArray, commonB.toArray)
+    pearson(commonA.toArray, commonB.toArray)
   }
 
-  def pearsonCorrelation(a:Array[Double], b:Array[Double]):Double = {
+  def pearson(a:Array[Double], b:Array[Double]):Double = {
     if (a.isEmpty) return 0.0 // no overlapping ratings
 
     var (meanA, devA) = meanAndDev(a)
     var (meanB, devB) = meanAndDev(b)
-    val diffsA = a.map(_ - meanA)
-    val diffsB = b.map(_ - meanB)
-    val xy = diffsA.zip(diffsB).map(i => i._1 * i._2).sum
+    val xy = (a zip b).map{ case (a,b) => (a - meanA) * (b - meanB) }.sum
 
-    if (devA == 0.0 || devB == 0.0) {
-      val sameA = a.forall(_ == a.head)
-      val sameB = b.forall(_ == b.head)
-      if (sameA && sameB) return 1.0 // degenerate correlation, all points the same
-
-      if (devA == 0) 
-        // otherwise either a or b vary
-        devA = devB
-      else
-        devB = devA
+    (devA, devB) match {
+      case (0.0, 0.0) => return 1.0 // degenerate correlation, all points the same
+      case (0.0, devB) => xy / (a.size * devB * devB)
+      case (devA, 0.0) => xy / (a.size * devA * devA)
+      case (devA, devB) => xy / (a.size * devA * devB)
     }
-
-    xy / (a.size * devA * devB)
   }
 
   def mean(values:Array[Double]):Double = values.sum / values.size
