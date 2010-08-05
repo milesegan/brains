@@ -45,14 +45,14 @@ class MovieLens {
     }
 
     public Double similarity(int a, int b) {
-        if (!movieRatings.containsKey(a) && !movieRatings.containsKey(b)) return 0.0;
+        if (!movieRatings.containsKey(a) || !movieRatings.containsKey(b)) return 0.0;
         Map<Integer,Double> ratingsA = movieRatings.get(a);
         Map<Integer,Double> ratingsB = movieRatings.get(b);
 
         double meanAllA = mean(ratingsA.values().toArray(new Double[1]));
         double meanAllB = mean(ratingsB.values().toArray(new Double[1]));
-        Vector<Double> commonA = new Vector<Double>();
-        Vector<Double> commonB = new Vector<Double>();
+        ArrayList<Double> commonA = new ArrayList<Double>();
+        ArrayList<Double> commonB = new ArrayList<Double>();
 
         // find ratings of other movies by same user
         // subtract mean and store deltas
@@ -81,7 +81,7 @@ class MovieLens {
         }
         Collections.sort(sims, new Comparator<Object[]>() {
                 public int compare(Object[] a, Object[] b) {
-                    return (int)((Double)a[0] - (Double)b[0]);
+                    return Double.compare((Double)a[0], (Double)b[0]);
                 }
             });
         for (Object[] i : sims) {
