@@ -1,12 +1,12 @@
 import collection.immutable.HashMap
-import collection.mutable.{ Map => MMap }
+import collection.mutable.{ HashMap => MMap }
 
 class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
   
-  val separator = """\|"""
+  val SEPARATOR = "::"
 
   val movies = movieFile.getLines.map { line =>
-    val id :: title :: rest = line.split(separator).toList
+    val id :: title :: rest = line.split(SEPARATOR).toList
     id.toInt -> title
   }.toMap
 
@@ -15,7 +15,7 @@ class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
     val movieBuilder = MMap[Int,MMap[Int,Double]]()
     
     for (line <- ratingFile.getLines) {
-      val user :: movie :: rating :: rest = line.split("""\s""").map(_.toInt).toList
+      val user :: movie :: rating :: rest = line.split(SEPARATOR).map(_.toInt).toList
       movieBuilder.getOrElseUpdate(movie.toInt, MMap[Int,Double]())
       movieBuilder(movie)(user) = rating
       userBuilder.getOrElseUpdate(user, MMap[Int,Double]())
@@ -23,6 +23,23 @@ class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
     }
     (userBuilder.toMap, movieBuilder.toMap)
   }
+
+  println(new java.util.Date)
+  val similarities = {
+    val simbuilder = MMap[Int,MMap[Int,Double]]()
+    val n = movieRatings.keySet.size
+    for (i <- 0 until n) {
+      simbuilder(i) = MMap[Int,Double]()
+      for (j <- i until n) {
+        if (i == j)
+          simbuilder(i)(j) = 1
+        else
+          simbuilder(i)(j) = similarity(i, j)
+      }
+    }
+    simbuilder.toMap
+  }
+  println(new java.util.Date)
 
   def similarity(a:Int, b:Int):Double = {
     val ratingsA = movieRatings.get(a).getOrElse { return 0.0 }
@@ -37,10 +54,10 @@ class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
     val commonRatings = commonUsers.toSeq.map(u => (ratingsA(u) - meanAllA, ratingsB(u) - meanAllB))
     val (commonA, commonB) = commonRatings.unzip
 
-    pearson(commonA.toArray, commonB.toArray)
+    pearson(commonA, commonB)
   }
 
-  def pearson(a:Array[Double], b:Array[Double]):Double = {
+  def pearson(a:Seq[Double], b:Seq[Double]):Double = {
     if (a.isEmpty) return 0.0 // no overlapping ratings
 
     var (meanA, devA) = meanAndDev(a)
@@ -55,9 +72,9 @@ class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
     }
   }
 
-  def mean(values:Array[Double]):Double = values.sum / values.size
+  def mean(values:Seq[Double]):Double = values.sum / values.size
 
-  def meanAndDev(values:Array[Double]):(Double,Double) = {
+  def meanAndDev(values:Seq[Double]):(Double,Double) = {
     val meanV = mean(values)
     val squares = values.map(v => (v - meanV) * (v - meanV)).reduceLeft(_ + _)
     (meanV, math.sqrt(squares / values.size))
@@ -72,7 +89,7 @@ object MovieLens {
     val movies = set.movies.keySet.toSeq
     val sims = for (m <- movies) yield (set.similarity(86,m), set.movies(m))
     for ((sim, title) <- sims.sorted) {          
-      printf("%3f %s\n", sim, title)
+      //printf("%3f %s\n", sim, title)
     }
   }
 }

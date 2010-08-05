@@ -4,18 +4,14 @@ import java.io.IOException;
 import java.util.*;
 import static java.lang.System.out;
 
-class RatingsMap extends HashMap<Integer,Map<Integer,Double>> {}
-
 class MovieLens {
     
-    private RatingsMap userRatings;
-    private RatingsMap movieRatings;
+    private Map<Integer,HashMap<Integer,Double>> movieRatings;
     private Map<Integer,String> movies;
-    final static String SEPARATOR = "\\|";
+    private final static String SEPARATOR = "::";
 
     public MovieLens(BufferedReader movieFile, BufferedReader ratingFile) throws IOException {
-        userRatings = new RatingsMap();
-        movieRatings = new RatingsMap();
+        movieRatings = new HashMap<Integer,HashMap<Integer,Double>>();
         movies = new HashMap<Integer,String>();
 
         String line = null;
@@ -25,7 +21,7 @@ class MovieLens {
         }
 
         while ((line = ratingFile.readLine()) != null) {
-            String[] parts = line.split("\\s");
+            String[] parts = line.split(SEPARATOR);
             int user = new Integer(parts[0]);
             int movie = new Integer(parts[1]);
             double rating = new Double(parts[2]);
@@ -33,10 +29,6 @@ class MovieLens {
                 movieRatings.put(movie, new HashMap<Integer,Double>());
             }
             movieRatings.get(movie).put(user, rating);
-            if (!userRatings.containsKey(user)) {
-                userRatings.put(user, new HashMap<Integer,Double>());
-            }
-            userRatings.get(user).put(movie, rating);
         }
     }
 
