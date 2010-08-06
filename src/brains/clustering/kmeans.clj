@@ -1,13 +1,6 @@
 (ns brains.clustering.kmeans
-  (require [clojure.string :as string]))
-
-(defn- read-file [path]
-  (let [lines (line-seq (-> path (java.io.FileReader.) (java.io.BufferedReader.)))
-        lines (map #(string/split % #", ") (rest lines))]
-    (for [line lines]
-      {:label (first line)
-       :values (map #(Double. ^String %) (rest line))})))
-
+  (require [brains.clustering.util :as util]))
+  
 (defn- centroid [points]
   (let [vals (map :values points)
         n (count (first vals))
@@ -15,16 +8,13 @@
                (apply + (map #(nth % i) vals)))]
     (map #(/ % (count points)) sums)))
 
-(defn- distance [a b]
-  (let [squares (map (fn [x y] (Math/pow (- x y) 2))
-                     a b)]
-    (Math/sqrt (apply + squares))))
-
 (defn- closest-centroid [p centroids]
-  (let [distances (map-indexed (fn [i c]
-                                 [(distance c (:values p)) i])
-                               centroids)]
-    (nth (first (sort distances)) 1)))
+  (let [distances
+        (map-indexed (fn [i c]
+                       [(util/distance c (:values p)) i])
+                     centroids)
+        [d closest] (first (sort distances))]
+    closest))
 
 (defn- initial-centroids [k points]
   (map :values (take k (shuffle points))))
@@ -37,9 +27,3 @@
       (if (= centroids new-centroids)
         (vals clusters)
         (recur new-centroids)))))
-
-(defn main [k points-file]
-  (let [points (read-file points-file)
-        clusters (cluster (Integer. k) points)]
-    (doseq [c clusters]
-      (println (map :label c)))))
