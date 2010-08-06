@@ -25,7 +25,7 @@ class KMeans(val points:Seq[DataPoint]) {
 
   private
   def closestCentroid(centroids:Seq[Seq[Double]], p:DataPoint):Int = {
-    val distances = centroids.map(distance(p.values, _)).zipWithIndex.sorted
+    val distances = centroids.map{ distance(p.values, _) }.zipWithIndex.sorted
     distances.head._2
   }
 
@@ -33,14 +33,14 @@ class KMeans(val points:Seq[DataPoint]) {
   def centroid(elements:Seq[DataPoint]):Seq[Double] = {
     if (elements.isEmpty) return Seq()
     
-    val points = elements.map(_.values)
+    val points = elements map { _.values }
     val sums = for (i <- 0 until points.head.size) yield points.map(_(i)).sum
-    sums.map(_ / elements.size)
+    sums map { _ / elements.size }
   }
 
   private
   def distance(a:Seq[Double], b:Seq[Double]):Double = {
-    val squares = (a zip b).map{ case (x,y) => math.pow((x - y), 2) }
+    val squares = (a zip b) map { case (x,y) => math.pow((x - y), 2) }
     math.sqrt(squares.sum)
   }
 
@@ -52,13 +52,16 @@ class KMeans(val points:Seq[DataPoint]) {
 }
 
 object KMeans {
-  def openFile(path:String) = new io.BufferedSource(new java.io.FileInputStream(path))
+  def readDataFile(path:String) = {
+    val src = new io.BufferedSource(new java.io.FileInputStream(path))
+    val lines = src.getLines.drop(1)
+    val dataLines = lines map { _.split(""",\s+""").toList }
+    dataLines.map(i => DataPoint(i.tail map { _.toDouble }, i.head)).toSeq
+  }
 
   def main(args:Array[String]) = {
     val numClusters = args.head.toInt
-    val src = openFile(args(1)).getLines.drop(1)
-    val dataLines = src.map(_.split(""",\s+""").toList)
-    val data = dataLines.map(i => DataPoint(i.tail.map(_.toDouble), i.head)).toSeq
+    val data = readDataFile(args(1))
     val km = new KMeans(data)
     val clusters = km.cluster(numClusters).sortBy(_.size)
     for (c <- clusters) {
