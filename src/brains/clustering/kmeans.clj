@@ -1,6 +1,4 @@
-#!/usr/bin/env clj
-
-(ns clustering
+(ns brains.clustering.kmeans
   (require [clojure.string :as string]))
 
 (defn- read-file [path]
@@ -40,8 +38,8 @@
         (vals clusters)
         (recur new-centroids)))))
 
-(let [k (Integer. (nth *command-line-args* 1))
-      points (read-file (nth *command-line-args* 2))
-      clusters (cluster k points)]
-  (doseq [c clusters]
-    (println (map :label c))))                          
+(defn main [k points-file]
+  (let [points (read-file points-file)
+        clusters (cluster (Integer. k) points)]
+    (doseq [c clusters]
+      (println (map :label c)))))

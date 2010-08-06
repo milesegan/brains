@@ -1,3 +1,4 @@
-*.txt
-*.dat
-*.class
+pom.xml
+*jar
+lib
+classes
