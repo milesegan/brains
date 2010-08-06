@@ -8,15 +8,10 @@ class KMeans(val points:Seq[DataPoint]) {
     var centroids:Seq[Seq[Double]] = pickInitialCentroids(k, points)
 
     while (true) {
-      val clusters = for (i <- 0 until k) yield MBuf[DataPoint]()
-      for (p <- points) {
-        val i = closestCentroid(centroids, p)
-        clusters(i) += p
-      }
-
-      val newCentroids = for (c <- clusters) yield centroid(c)
+      val clusters = points.groupBy { closestCentroid(centroids, _) }
+      val newCentroids = for (i <- 0 until k) yield centroid(clusters(i))
       if (centroids equals newCentroids) {
-        return clusters
+        return clusters.values.toSeq
       }
       centroids = newCentroids
     }
