@@ -2,3 +2,8 @@ pom.xml
 *jar
 lib
 classes
+scala/build
+scala/target
+data
+
+

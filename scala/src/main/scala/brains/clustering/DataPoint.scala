@@ -1,6 +1,14 @@
 package brains.clustering
 
-case class DataPoint(val values:Seq[Double], val label:String)
+case class DataPoint(val values:Seq[Double], val label:String) {
+
+  def distance(b:Seq[Double]):Double = {
+    val squares = (values zip b) map { case (x,y) => math.pow((x - y), 2) }
+    math.sqrt(squares.sum)
+  }
+
+  def distance(p:DataPoint):Double = distance(p.values)
+}
 
 object DataPoint {
   def readFile(path:String) = {
