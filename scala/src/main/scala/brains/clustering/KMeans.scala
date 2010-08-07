@@ -1,21 +1,23 @@
 package brains.clustering
 
-import collection.mutable.{ HashSet => MSet, Buffer => MBuf }
+import scala.annotation.tailrec
 
 class KMeans(val points:Seq[DataPoint]) {
 
   def cluster(k:Int):Seq[Seq[DataPoint]] = {
-    var centroids:Seq[Seq[Double]] = pickInitialCentroids(k, points)
 
-    while (true) {
-      val clusters = points.groupBy { closestCentroid(centroids, _) }
-      val newCentroids = for (i <- 0 until k) yield centroid(clusters(i))
-      if (centroids equals newCentroids) {
-        return clusters.values.toSeq
-      }
-      centroids = newCentroids
+    @tailrec
+    def doCluster(centroids:Seq[Seq[Double]], clusters:Map[Int,Seq[DataPoint]]):Seq[Seq[DataPoint]] = {
+      val newClusters = points.groupBy { closestCentroid(centroids, _) }
+      val newCentroids = for (i <- 0 until k) yield centroid(newClusters(i))
+      if (centroids equals newCentroids)
+        clusters.values.toSeq
+      else
+        doCluster(newCentroids, newClusters)
     }
-    Seq()
+
+    val centroids:Seq[Seq[Double]] = pickInitialCentroids(k, points)
+    doCluster(centroids, Map())
   }
 
   private
@@ -41,22 +43,14 @@ class KMeans(val points:Seq[DataPoint]) {
 
   private
   def pickInitialCentroids(k:Int, points:Seq[DataPoint]):Seq[Seq[Double]] = {
-    // pick existing data points as starting centroids
     util.Random.shuffle(points) take(k) map(_.values)
   }
 }
 
 object KMeans {
-  def readDataFile(path:String) = {
-    val src = new io.BufferedSource(new java.io.FileInputStream(path))
-    val lines = src.getLines.drop(1)
-    val dataLines = lines map { _.split(""",\s+""").toList }
-    dataLines.map(i => DataPoint(i.tail map { _.toDouble }, i.head)).toSeq
-  }
-
   def main(args:Array[String]) = {
     val numClusters = args.head.toInt
-    val data = readDataFile(args(1))
+    val data = DataPoint.readFile(args(1))
     val km = new KMeans(data)
     val clusters = km.cluster(numClusters).sortBy(_.size)
     for (c <- clusters) {

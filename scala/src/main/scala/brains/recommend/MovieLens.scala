@@ -1,4 +1,3 @@
-import collection.immutable.HashMap
 import collection.mutable.{ HashMap => MMap }
 
 class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
