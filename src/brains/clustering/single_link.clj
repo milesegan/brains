@@ -1,7 +1,8 @@
 (ns brains.clustering.single-link
   (use brains.clustering.util)
-  (require [brains.clustering.dendrogram :as dgram]
-           [clojure.contrib.seq :as seq]))
+  (require [clojure.contrib.seq :as seq]))
+
+(def mdistance (memoize distance))
 
 (defn build-clusters [d points]
   (loop [points points
@@ -10,21 +11,18 @@
       clusters
       (let [p (first points)
             others (rest points)
-            parts (seq/separate #(> d (distance (:values p) (:values %)))
+            parts (seq/separate #(> d (mdistance (:values p) (:values %)))
                                 others)
             [close far] parts]
         (recur far (cons (cons p close) clusters))))))
 
 (defn cluster [k points]
   (loop [clusters points
-         distance 0
-         d (dgram/new clusters)]
+         distance 0]
     (let [oldcount (count clusters)
           newclusters (build-clusters distance points)
-          newcount (count newclusters)
-          newdgram (if (not= oldcount newcount)
-                     (dgram/add d distance newclusters)
-                     d)]
+          newcount (count newclusters)]
       (if (= newcount k)
-        newdgram
-        (recur newclusters (+ distance 1) newdgram)))))
+        newclusters
+        (recur newclusters (+ distance 1))))))
+

@@ -15,19 +15,9 @@
     (doseq [c clusters]
       (println (map :label c)))))
 
-(defn print-clusters [clusters]
-  (doseq [c clusters]
-    (println c)))
-  
 (defn do-kmeans [k path]
-  (let [clusters (kmeans/cluster (Integer. k) (load-points path))]
-    (print-clusters clusters)))
+  (do-cluster kmeans/cluster k path))
 
 (defn do-single-link [k path]
-  (let [dgram (single-link/cluster (Integer. k) (load-points path))]
-    (doseq [level dgram]
-      (let [[dist clusters] level]
-        (println "LEVEL" dist)
-        (doseq [c clusters]
-          (println (map :label c)))))))
+  (do-cluster single-link/cluster k path))
 
