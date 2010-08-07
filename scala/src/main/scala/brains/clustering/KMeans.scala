@@ -1,4 +1,4 @@
-package clustering
+package brains.clustering
 
 import collection.mutable.{ HashSet => MSet, Buffer => MBuf }
 
