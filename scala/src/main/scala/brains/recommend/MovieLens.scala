@@ -2,10 +2,11 @@ package brains.recommend
 
 import annotation.tailrec
 import io.BufferedSource
+import collection.immutable.HashMap
 
 class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
 
-  type Ratings = Map[Int,Map[Int,Double]]
+  type Ratings = HashMap[Int,HashMap[Int,Double]]
 
   val SEPARATOR = "::"
 
@@ -14,14 +15,14 @@ class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
     id.toInt -> title
   }.toMap
 
-  val movieRatings = loadRatings(ratingFile.getLines, Map.empty[Int,Map[Int,Double]])
+  val movieRatings = loadRatings(ratingFile.getLines, new Ratings)
 
   @tailrec
   private def loadRatings(file:Iterator[String], ratings:Ratings):Ratings = {
     if (file.isEmpty) ratings
     else {
       val user :: movie :: rating :: rest = file.next.split(SEPARATOR).map(_.toInt).toList
-      val oldRatings = ratings.getOrElse(movie, Map.empty[Int,Double])
+      val oldRatings = ratings.getOrElse(movie, HashMap.empty[Int,Double])
       val newRating = oldRatings.updated(user, rating.toDouble)
       loadRatings(file, ratings.updated(movie, newRating))
     }

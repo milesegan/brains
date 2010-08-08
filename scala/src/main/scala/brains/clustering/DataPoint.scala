@@ -1,16 +1,21 @@
 package brains.clustering
 
-case class DataPoint(val values:Seq[Double], val label:String) {
+case class DataPoint(val values:Seq[Double], val label:String)  {
 
-  def distance(b:Seq[Double]):Double = {
-    val squares = (values zip b) map { case (x,y) => math.pow((x - y), 2) }
-    math.sqrt(squares.sum)
+  def distance(other:DataPoint):Double = {
+    // memoize
+    DataPoint.cache.getOrElseUpdate((this,other), distance(other.values))
   }
 
-  def distance(p:DataPoint):Double = distance(p.values)
+  def distance(other:Seq[Double]):Double = {
+    val squares = (values zip other) map { case (x,y) => math.pow((x - y), 2) }
+    math.sqrt(squares.sum)
+  }
 }
 
 object DataPoint {
+
+  private val cache = collection.mutable.Map.empty[(DataPoint,DataPoint), Double]
 
   type Cluster = Seq[DataPoint]
   type Clusters = Seq[Cluster]

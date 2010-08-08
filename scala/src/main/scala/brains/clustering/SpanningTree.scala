@@ -3,16 +3,20 @@ package brains.clustering
 import scala.annotation.tailrec
 import brains.clustering.DataPoint.{Cluster,Clusters}
 
-object SingleLink {
+object SpanningTree {
   
   @tailrec 
   private 
-  def buildClusters(distance:Double, points:Cluster, clusters:Clusters):Clusters = {
+  def buildClusters(d:Double, points:Cluster, thisCluster:Cluster, clusters:Clusters):Clusters = {
       if (points.isEmpty) clusters
       else {
-        val p :: others = points.toList
-        val (close, far) = others.partition(p.distance(_) < distance)
-        buildClusters(distance, far, clusters :+ (close :+ p))
+        val current = thisCluster.head
+        val sorted = points.sortBy { current distance _ }
+        val (closest, rest) = (sorted.head, sorted.tail)
+        if (current.distance(closest) < d)
+          buildClusters(d, rest, thisCluster :+ closest, clusters)
+        else
+          buildClusters(d, points.tail, Seq(points.head), clusters :+ thisCluster)
       }
   }
 
@@ -20,8 +24,8 @@ object SingleLink {
   def cluster(k:Int, points:Cluster):Clusters = {
     @tailrec
     def doCluster(clusters:Clusters, distance:Double):Clusters = {
-      val newClusters = buildClusters(distance, points, Seq())
-      if (newClusters.size <= k) newClusters
+      val newClusters = buildClusters(distance, points.tail, Seq(points.head), Seq())
+      if (newClusters.size == k) newClusters
       else doCluster(newClusters, distance + 1)
     }
 
