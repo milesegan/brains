@@ -1,14 +1,13 @@
 package brains.clustering
 
 import scala.annotation.tailrec
+import brains.clustering.DataPoint.{Cluster,Clusters}
 
 object SingleLink {
-
+  
   @tailrec 
   private 
-  def buildClusters(distance:Double, 
-                    points:Seq[DataPoint], 
-                    clusters:Seq[Seq[DataPoint]]):Seq[Seq[DataPoint]] = {
+  def buildClusters(distance:Double, points:Cluster, clusters:Clusters):Clusters = {
       if (points.isEmpty) clusters
       else {
         val p :: others = points.toList
@@ -18,9 +17,9 @@ object SingleLink {
   }
 
   private
-  def cluster(k:Int, points:Seq[DataPoint]):Seq[Seq[DataPoint]] = {
+  def cluster(k:Int, points:Cluster):Clusters = {
     @tailrec
-    def doCluster(clusters:Seq[Seq[DataPoint]], distance:Double):Seq[Seq[DataPoint]] = {
+    def doCluster(clusters:Clusters, distance:Double):Clusters = {
       val newClusters = buildClusters(distance, points, Seq())
       if (newClusters.size == k) newClusters
       else doCluster(newClusters, distance + 1)

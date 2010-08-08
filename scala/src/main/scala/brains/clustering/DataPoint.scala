@@ -11,6 +11,10 @@ case class DataPoint(val values:Seq[Double], val label:String) {
 }
 
 object DataPoint {
+
+  type Cluster = Seq[DataPoint]
+  type Clusters = Seq[Cluster]
+
   def readFile(path:String) = {
     val src = new io.BufferedSource(new java.io.FileInputStream(path))
     val lines = src.getLines.drop(1)

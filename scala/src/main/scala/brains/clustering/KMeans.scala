@@ -1,13 +1,16 @@
 package brains.clustering
 
 import scala.annotation.tailrec
+import brains.clustering.DataPoint.{Cluster,Clusters}
 
 object KMeans {
 
-  def cluster(k:Int, points:Seq[DataPoint]):Seq[Seq[DataPoint]] = {
+  type Doubles = Seq[Double]
+
+  def cluster(k:Int, points:Cluster):Clusters = {
 
     @tailrec
-    def doCluster(centroids:Seq[Seq[Double]], clusters:Map[Int,Seq[DataPoint]]):Seq[Seq[DataPoint]] = {
+    def doCluster(centroids:Seq[Doubles], clusters:Map[Int,Cluster]):Clusters = {
       val newClusters = points.groupBy { closestCentroid(centroids, _) }
       val newCentroids = for (i <- 0 until k) yield centroid(newClusters(i))
       if (centroids equals newCentroids)
@@ -16,18 +19,18 @@ object KMeans {
         doCluster(newCentroids, newClusters)
     }
 
-    val centroids:Seq[Seq[Double]] = pickInitialCentroids(k, points)
+    val centroids:Seq[Doubles] = pickInitialCentroids(k, points)
     doCluster(centroids, Map())
   }
 
   private
-  def closestCentroid(centroids:Seq[Seq[Double]], p:DataPoint):Int = {
+  def closestCentroid(centroids:Seq[Doubles], p:DataPoint):Int = {
     val distances = centroids.map{ p.distance }.zipWithIndex.sorted
     distances.head._2
   }
 
   private
-  def centroid(elements:Seq[DataPoint]):Seq[Double] = {
+  def centroid(elements:Cluster):Doubles = {
     if (elements.isEmpty) return Seq()
     
     val points = elements map { _.values }
@@ -36,8 +39,8 @@ object KMeans {
   }
 
   private
-  def pickInitialCentroids(k:Int, points:Seq[DataPoint]):Seq[Seq[Double]] = {
-    util.Random.shuffle(points) take(k) map(_.values)
+  def pickInitialCentroids(k:Int, points:Cluster):Seq[Doubles] = {
+    util.Random.shuffle(points.toSeq).take(k) map { _.values }
   }
 
   def main(args:Array[String]) = {
