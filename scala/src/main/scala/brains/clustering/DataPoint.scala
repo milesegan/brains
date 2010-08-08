@@ -17,9 +17,6 @@ object DataPoint {
 
   private val cache = collection.mutable.Map.empty[(DataPoint,DataPoint), Double]
 
-  type Cluster = Seq[DataPoint]
-  type Clusters = Seq[Cluster]
-
   def readFile(path:String) = {
     val src = new io.BufferedSource(new java.io.FileInputStream(path))
     val lines = src.getLines.drop(1)

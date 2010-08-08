@@ -1,9 +1,8 @@
 package brains.clustering
 
 import scala.annotation.tailrec
-import brains.clustering.DataPoint.{Cluster,Clusters}
 
-object KMeans extends Driver {
+object KMeans extends Algorithm with Driver {
 
   type Doubles = Seq[Double]
 

@@ -1,9 +1,8 @@
 package brains.clustering
 
 import scala.annotation.tailrec
-import brains.clustering.DataPoint.{Cluster,Clusters}
 
-object SingleLink extends Driver {
+object SingleLink extends Algorithm with Driver {
   
   @tailrec 
   private 
