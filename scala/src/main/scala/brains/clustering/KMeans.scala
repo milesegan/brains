@@ -3,7 +3,7 @@ package brains.clustering
 import scala.annotation.tailrec
 import brains.clustering.DataPoint.{Cluster,Clusters}
 
-object KMeans {
+object KMeans extends Driver {
 
   type Doubles = Seq[Double]
 
@@ -41,16 +41,6 @@ object KMeans {
   private
   def pickInitialCentroids(k:Int, points:Cluster):Seq[Doubles] = {
     util.Random.shuffle(points.toSeq).take(k) map { _.values }
-  }
-
-  def main(args:Array[String]) = {
-    val numClusters = args.head.toInt
-    val data = DataPoint.readFile(args(1))
-    val clusters = cluster(numClusters, data).sortBy(_.size)
-    for (c <- clusters) {
-      val labels = c.map(_.label)
-      println(labels.mkString(", "))
-    }
   }
 
 }

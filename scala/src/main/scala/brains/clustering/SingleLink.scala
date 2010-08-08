@@ -3,7 +3,7 @@ package brains.clustering
 import scala.annotation.tailrec
 import brains.clustering.DataPoint.{Cluster,Clusters}
 
-object SingleLink {
+object SingleLink extends Driver {
   
   @tailrec 
   private 
@@ -16,7 +16,6 @@ object SingleLink {
       }
   }
 
-  private
   def cluster(k:Int, points:Cluster):Clusters = {
     @tailrec
     def doCluster(clusters:Clusters, distance:Double):Clusters = {
@@ -27,16 +26,6 @@ object SingleLink {
 
     val clusters = points map { Seq(_) }
     doCluster(clusters, 0)
-  }
-
-  def main(args:Array[String]) = {
-    val numClusters = args.head.toInt
-    val data = DataPoint.readFile(args(1))
-    val clusters = cluster(numClusters, data).sortBy(_.size)
-    for (c <- clusters) {
-      val labels = c.map(_.label)
-      println(labels.mkString(", "))
-    }
   }
 
 }
