@@ -4,26 +4,24 @@ import scala.annotation.tailrec
 
 object SingleLink {
 
+  @tailrec 
   private 
-  def buildClusters(distance:Double, points:Seq[DataPoint]):Seq[Seq[DataPoint]] = {
-    @tailrec
-    def doBuildClusters(points:Seq[DataPoint], clusters:Seq[Seq[DataPoint]]):Seq[Seq[DataPoint]] = {
+  def buildClusters(distance:Double, 
+                    points:Seq[DataPoint], 
+                    clusters:Seq[Seq[DataPoint]]):Seq[Seq[DataPoint]] = {
       if (points.isEmpty) clusters
       else {
         val p :: others = points.toList
         val (close, far) = others.partition(p.distance(_) < distance) // TODO: memoize
-        doBuildClusters(far, clusters :+ (close :+ p))
+        buildClusters(distance, far, clusters :+ (close :+ p))
       }
-    }
-
-    doBuildClusters(points, Seq())
   }
 
   private
   def cluster(k:Int, points:Seq[DataPoint]):Seq[Seq[DataPoint]] = {
     @tailrec
     def doCluster(clusters:Seq[Seq[DataPoint]], distance:Double):Seq[Seq[DataPoint]] = {
-      val newClusters = buildClusters(distance, points)
+      val newClusters = buildClusters(distance, points, Seq())
       if (newClusters.size == k) newClusters
       else doCluster(newClusters, distance + 1)
     }
