@@ -1,6 +1,5 @@
 package brains.recommend
 
-import collection.mutable.{ HashMap => MMap }
 import annotation.tailrec
 import io.BufferedSource
 
@@ -38,7 +37,7 @@ class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
     // find ratings of both movies by the same users, subtract mean and store deltas
     val commonUsers = ratingsA.keySet & ratingsB.keySet
     if (commonUsers.size < 3) return 0.0
-    val commonRatings = commonUsers.toSeq.map(u => (ratingsA(u) - meanAllA, ratingsB(u) - meanAllB))
+    val commonRatings = commonUsers.toSeq map { u => (ratingsA(u) - meanAllA, ratingsB(u) - meanAllB) }
     val (commonA, commonB) = commonRatings.unzip
 
     pearson(commonA, commonB)
@@ -63,7 +62,7 @@ class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
 
   def meanAndDev(values:Seq[Double]):(Double,Double) = {
     val meanV = mean(values)
-    val squares = values.map(v => (v - meanV) * (v - meanV)).reduceLeft(_ + _)
+    val squares = values.map { v => (v - meanV) * (v - meanV) }.reduceLeft(_ + _)
     meanV -> math.sqrt(squares / values.size)
   }
 }
