@@ -1,7 +1,13 @@
-import collection.mutable.{ HashMap => MMap }
+package brains.recommend
 
-class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
-  
+import collection.mutable.{ HashMap => MMap }
+import annotation.tailrec
+import io.BufferedSource
+
+class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
+
+  type Ratings = Map[Int,Map[Int,Double]]
+
   val SEPARATOR = "::"
 
   val movies = movieFile.getLines.map { line =>
@@ -9,36 +15,18 @@ class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
     id.toInt -> title
   }.toMap
 
-  val (userRatings, movieRatings) = {
-    val userBuilder = MMap[Int,MMap[Int,Double]]()
-    val movieBuilder = MMap[Int,MMap[Int,Double]]()
-    
-    for (line <- ratingFile.getLines) {
-      val user :: movie :: rating :: rest = line.split(SEPARATOR).map(_.toInt).toList
-      movieBuilder.getOrElseUpdate(movie.toInt, MMap[Int,Double]())
-      movieBuilder(movie)(user) = rating
-      userBuilder.getOrElseUpdate(user, MMap[Int,Double]())
-      userBuilder(user)(movie) = rating
-    }
-    (userBuilder.toMap, movieBuilder.toMap)
-  }
+  val movieRatings = loadRatings(ratingFile.getLines, Map.empty[Int,Map[Int,Double]])
 
-  println(new java.util.Date)
-  val similarities = {
-    val simbuilder = MMap[Int,MMap[Int,Double]]()
-    val n = movieRatings.keySet.size
-    for (i <- 0 until n) {
-      simbuilder(i) = MMap[Int,Double]()
-      for (j <- i until n) {
-        if (i == j)
-          simbuilder(i)(j) = 1
-        else
-          simbuilder(i)(j) = similarity(i, j)
-      }
+  @tailrec
+  private def loadRatings(file:Iterator[String], ratings:Ratings):Ratings = {
+    if (file.isEmpty) ratings
+    else {
+      val user :: movie :: rating :: rest = file.next.split(SEPARATOR).map(_.toInt).toList
+      val oldRatings = ratings.getOrElse(movie, Map.empty[Int,Double])
+      val newRating = oldRatings.updated(user, rating.toDouble)
+      loadRatings(file, ratings.updated(movie, newRating))
     }
-    simbuilder.toMap
   }
-  println(new java.util.Date)
 
   def similarity(a:Int, b:Int):Double = {
     val ratingsA = movieRatings.get(a).getOrElse { return 0.0 }
@@ -76,7 +64,7 @@ class MovieLens(movieFile:io.BufferedSource, ratingFile:io.BufferedSource) {
   def meanAndDev(values:Seq[Double]):(Double,Double) = {
     val meanV = mean(values)
     val squares = values.map(v => (v - meanV) * (v - meanV)).reduceLeft(_ + _)
-    (meanV, math.sqrt(squares / values.size))
+    meanV -> math.sqrt(squares / values.size)
   }
 }
 
@@ -88,7 +76,7 @@ object MovieLens {
     val movies = set.movies.keySet.toSeq
     val sims = for (m <- movies) yield (set.similarity(86,m), set.movies(m))
     for ((sim, title) <- sims.sorted) {          
-      //printf("%3f %s\n", sim, title)
+      printf("%3f %s\n", sim, title)
     }
   }
 }
