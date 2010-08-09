@@ -5,7 +5,7 @@
 
 (defn- load-points [path]
   (let [lines (line-seq (-> path (java.io.FileReader.) (java.io.BufferedReader.)))
-        lines (map #(string/split % #", ") (rest lines))]
+        lines (map #(string/split % #",\s?") (rest lines))]
     (for [line lines]
       {:label (first line)
        :values (map #(Double. ^String %) (rest line))})))
