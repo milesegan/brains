@@ -1,6 +1,6 @@
 import sbt._
 
-class HelloWorldProject(info: ProjectInfo) extends DefaultProject(info)
+class HelloWorldProject(info: ProjectInfo) extends DefaultProject(info) with Exec
 {
   def droolsVer = "5.1.0.M1"
   val jbossRepo = "jboss maven repo" at "http://repository.jboss.org/maven2"
