@@ -5,4 +5,5 @@ So far it encompasses the following:
 
 * recommendations and similarity measures
 * clustering
+* classification
 

@@ -43,7 +43,7 @@ class NaiveBayes(val trainingSet:Set[StringDataPoint], val conceptKey:Symbol) {
           if (pCI.contains(av) && pCI(av).contains(c)) {
             pCI(av)(c) * pC(c) / pI(av)
           }
-          else 1 / trainingSet.size
+          else 0.1 / trainingSet.size // TODO: adjust this
         }
         (p.reduceLeft(_ * _), c)
       }
