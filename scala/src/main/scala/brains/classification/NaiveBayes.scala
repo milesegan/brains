@@ -18,15 +18,15 @@ class NaiveBayes(val trainingSet:Set[StringDataPoint], val conceptKey:Symbol) {
     val a = HM.empty[(Symbol,String),Double]
     val ac = HM.empty[(Symbol,String),HM[String,Double]]
     for (p <- data) {
-      val (concept, vals) = (p.values(conceptKey), p.values - conceptKey)
+      val (concept, vals) = p.values(conceptKey) -> (p.values - conceptKey)
       c.getOrElseUpdate(concept, 0d)
       c(concept) += 1
       for ((k,v) <- vals) {
-        a.getOrElseUpdate((k,v), 0d)
-        a((k,v)) += 1
-        ac.getOrElseUpdate((k,v), HM.empty)
-        ac((k,v)).getOrElseUpdate(concept, 0d)
-        ac((k,v))(concept) += 1
+        a.getOrElseUpdate(k -> v, 0d)
+        a(k -> v) += 1
+        ac.getOrElseUpdate(k -> v, HM.empty)
+        ac(k -> v).getOrElseUpdate(concept, 0d)
+        ac(k -> v)(concept) += 1
       }
     }
     for ((k,v) <- c) { c(k) = v / c.values.sum }
@@ -45,7 +45,7 @@ class NaiveBayes(val trainingSet:Set[StringDataPoint], val conceptKey:Symbol) {
           }
           else 0.1 / trainingSet.size // TODO: adjust this
         }
-        (p.reduceLeft(_ * _), c)
+        p.reduceLeft(_ * _) -> c
       }
         
     concepts.max._2
@@ -60,7 +60,7 @@ object NaiveBayes {
     val classifer = new NaiveBayes(trainingSet.toSet, conceptKey)
     var correct, total = 0
     for (t <- testSet) {
-      val (concept, classified) = (t.values(conceptKey), classifer.classify(t))
+      val (concept, classified) = t.values(conceptKey) -> classifer.classify(t)
       total += 1
       if (concept == classified) correct += 1
       println(concept + " => " + classified)
