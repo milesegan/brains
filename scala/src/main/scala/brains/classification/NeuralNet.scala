@@ -9,7 +9,7 @@ class NeuralNet(val layerDims:Int*) {
   val nLayers = layerDims.size
   val weights = for (i <- 1 until nLayers) yield  {
     val maxInitWeight = 1 / math.sqrt(layerDims(i))
-    val nNodes = layerDims(i - 1) + 1 // + 1 for bias nodes
+    val nNodes = layerDims(i - 1) + 1 // + 1 for bias nodes, which are at the end
     val nWeights = layerDims(i)
     Array.fill[Double](nNodes, nWeights) { 
       2 * util.Random.nextDouble * maxInitWeight - maxInitWeight 
@@ -17,13 +17,13 @@ class NeuralNet(val layerDims:Int*) {
   }
 
   private def calcActivations(input:Array[Double], weights:Array[Array[Double]]):Array[Double] = {
-    require(input.size == weights.size - 1)
+    println(input.size + " " + weights.size)
+    require(input.size == weights.size)
     val nInputs = input.size
     val nNodes = weights(0).size
     val a = Array.ofDim[Double](nNodes)
     for (i <- 0 until nNodes) {
-      a(i) = weights(0)(i) * -1 // bias input
-      for (j <- 1 until nInputs) {
+      for (j <- 0 until nInputs) {
         a(i) += input(j) * weights(j)(i)
       }
     }
@@ -39,7 +39,8 @@ class NeuralNet(val layerDims:Int*) {
     require(input.size == layerDims.head)
     var d = input
     for (i <- 0 until weights.size) {
-      d = calcActivations(d, weights(i))
+      val dWithBias = d :+ -1d
+      d = calcActivations(dWithBias, weights(i))
     }
     d
   }
