@@ -16,18 +16,16 @@ class NeuralNet(val layerDims:Int*) {
     } 
   }
 
-  private def calcActivations(input:Array[Double], weights:Array[Array[Double]]):Array[Double] = {
-    println(input.size + " " + weights.size)
-    require(input.size == weights.size)
-    val nInputs = input.size
-    val nNodes = weights(0).size
-    val a = Array.ofDim[Double](nNodes)
-    for (i <- 0 until nNodes) {
-      for (j <- 0 until nInputs) {
-        a(i) += input(j) * weights(j)(i)
+  private def multMatrix(v:Array[Double], m:Array[Array[Double]]):Array[Double] = {
+    require(m.size == v.size)
+    val newN = m(0).size
+    val a = Array.ofDim[Double](newN)
+    for (i <- 0 until newN) {
+      for (j <- 0 until v.size) {
+        a(i) += v(j) * m(j)(i)
       }
     }
-    a.map { i => 0.5 * (math.tanh(i) + 1) } // activation function
+    a
   }
 
   private def error(a:Array[Double], b:Array[Double]):Double = {
@@ -35,19 +33,22 @@ class NeuralNet(val layerDims:Int*) {
     (a zip b).map { case(a,b) => math.pow(a - b, 2) }.sum
   }
 
+  private def activation(v:Double) = math.tanh(v)
+
   def classify(input:Array[Double]):Array[Double] = {
     require(input.size == layerDims.head)
     var d = input
     for (i <- 0 until weights.size) {
       val dWithBias = d :+ -1d
-      d = calcActivations(dWithBias, weights(i))
+      d = multMatrix(dWithBias, weights(i))
+      for (i <- 0 until d.size) { d(i) = activation(d(i)) } // activation function
     }
     d
   }
 
   def train(input:Array[Double], output:Array[Double]) = {
-    val calc = classify(input)
-    val e = error(calc, output)
+    //val calc = classify(input)
+    //val oErr = for (i <- 0 until output.size) yield (output(i) - calc(i)) * calc(i) * (1 - calc(i))
   }
 }
 
@@ -55,7 +56,9 @@ object NeuralNet {
 
   def main(args:Array[String]) = {
     val net = new NeuralNet(3, 5, 1)
-    val res = net.classify(Array(3, 2, 3))
+    net.train(Array(0, 1, 1), Array(1))
+    net.train(Array(1, 0, 1), Array(0))
+    val res = net.classify(Array(1, 0, 0))
     println(res.mkString(", "))
   }
 
