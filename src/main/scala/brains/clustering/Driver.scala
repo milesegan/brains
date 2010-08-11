@@ -4,7 +4,7 @@ import brains.NumericDataPoint
 
 trait Driver {
 
-  def cluster(k:Int, points:Algorithm[NumericDataPoint]#Cluster):Algorithm[NumericDataPoint]#Clusters
+  def cluster(k:Int, points:Algorithm#Cluster):Algorithm#Clusters
 
   def main(args:Array[String]) = {
     val numClusters = args.head.toInt

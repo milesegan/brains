@@ -1,5 +1,7 @@
 package brains
 
+import brains.util._
+
 abstract class DataPoint[T](val values:Map[Symbol,T], val label:String)
 
 class StringDataPoint(values:Map[Symbol,String], label:String) extends DataPoint[String](values, label)
@@ -17,18 +19,20 @@ object StringDataPoint {
   }
 }
 
-class NumericDataPoint(values:Map[Symbol,Double], label:String) extends DataPoint[Double](values, label) {
+case class NumericDataPoint(fields:Seq[Symbol], values:Seq[Double], label:String) {
 
   def distance(other:NumericDataPoint):Double = {
     // memoize
-    NumericDataPoint.cache.getOrElseUpdate((this,other), distance(other.values))
+    NumericDataPoint.cache ||+ ((this,other), distance(other.values))
   }
 
-  def distance(other:Map[Symbol,Double]):Double = {
-    val squares = values.map { case (k,v) => 
-      math.pow(v - other.getOrElse(k, 0d), 2)
+  def distance(other:Seq[Double]):Double = {
+    require(values.size == other.size)
+    var squares = 0d
+    for (i <- 0 until values.size) {
+      squares += math.pow(values(i) - other(i), 2)
     }
-    math.sqrt(squares.sum)
+    math.sqrt(squares)
   }
 }
 
@@ -37,12 +41,14 @@ object NumericDataPoint {
 
   def readFile(path:String) = {
     val src = new io.BufferedSource(new java.io.FileInputStream(path))
-    val dataLines = src.getLines.map { _.split("""\s?,\s?""").toList }
+    val dataLines = for (i <- src.getLines if !i.matches("""^(#.+|\s*)$""")) yield {
+      i.split("""\s?,\s?""")
+    }
     val fields = dataLines.next.map { Symbol(_) }
-    dataLines.map { d =>
+    for (d <- dataLines) yield {
       val label = d.head
-      val doubles = d.tail.map(_.toDouble)
-      new NumericDataPoint(Map.empty ++ (fields zip doubles), label)
+      val values = d.tail.map(_.toDouble)
+      new NumericDataPoint(fields, values, label)
     }
   }
 

@@ -20,7 +20,7 @@ class NaiveBayes(val trainingSet:Set[StringDataPoint], val conceptKey:Symbol) {
     val ci = HM.empty[(Symbol,String),HM[String,Double]]
     for (p <- data) {
       val (concept, vals) = p.values(conceptKey) -> (p.values - conceptKey)
-      c.getOrElseUpdate(concept, 0d)
+      c ||+ (concept, 0d)
       c(concept) += 1
       for ((k,v) <- vals) {
         i ||+ (k, HM.empty)
