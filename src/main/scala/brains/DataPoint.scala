@@ -23,7 +23,7 @@ case class NumericDataPoint(fields:Seq[Symbol], values:Seq[Double], label:String
 
   def distance(other:NumericDataPoint):Double = {
     // memoize
-    NumericDataPoint.cache ||+ ((this,other), distance(other.values))
+    NumericDataPoint.cache +? ((this,other), distance(other.values))
   }
 
   def distance(other:Seq[Double]):Double = {

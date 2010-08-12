@@ -4,9 +4,6 @@ import brains.NumericDataPoint
 
 class NeuralNet(val nInputs:Int, val nHidden:Int, val nOutputs:Int) {
 
-  val ErrorThreshold = 0.001d
-  val ConvergeoThreshold = 1e-10d
-  val LearningRate = 0.25d
   val Beta = 1d
   val Eta = 0.1d
 

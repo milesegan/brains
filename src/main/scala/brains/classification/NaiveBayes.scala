@@ -20,14 +20,14 @@ class NaiveBayes(val trainingSet:Set[StringDataPoint], val conceptKey:Symbol) {
     val ci = HM.empty[(Symbol,String),HM[String,Double]]
     for (p <- data) {
       val (concept, vals) = p.values(conceptKey) -> (p.values - conceptKey)
-      c ||+ (concept, 0d)
+      c +? (concept, 0d)
       c(concept) += 1
       for ((k,v) <- vals) {
-        i ||+ (k, HM.empty)
-        i(k) ||+ (v, 0d)
+        i +? (k, HM.empty)
+        i(k) +? (v, 0d)
         i(k)(v) += 1
-        ci ||+ (k -> v, HM.empty)
-        ci(k -> v) ||+ (concept, 0d)
+        ci +? (k -> v, HM.empty)
+        ci(k -> v) +? (concept, 0d)
         ci(k -> v)(concept) += 1
       }
     }
