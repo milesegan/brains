@@ -1,6 +1,6 @@
 package brains.clustering
 
-trait Algorithm {
+trait Method {
   type Cluster = Seq[brains.NumericDataPoint]
   type Clusters = Seq[Cluster]
 

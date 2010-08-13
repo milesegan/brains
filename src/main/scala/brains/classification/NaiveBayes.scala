@@ -2,8 +2,8 @@ package brains.classification
 
 import brains.StringDataPoint
 
-class NaiveBayesClassifier(trainingSet:Seq[StringDataPoint], outcomeKey:Symbol) 
-extends Classifier(trainingSet, outcomeKey) {
+class NaiveBayes(trainingSet:Seq[StringDataPoint], outcomeKey:Symbol) 
+extends Method(trainingSet, outcomeKey) {
 
   val pm = new ProbabilityMap(trainingSet, outcomeKey)
 
@@ -26,8 +26,8 @@ extends Classifier(trainingSet, outcomeKey) {
 
 object NaiveBayes extends Driver {
 
-  def classifier(trainingData:Seq[StringDataPoint], outcomeKey:Symbol) = {
-    new NaiveBayesClassifier(trainingData, outcomeKey)
+  def method(trainingData:Seq[StringDataPoint], outcomeKey:Symbol) = {
+    new NaiveBayes(trainingData, outcomeKey)
   }
 
 }

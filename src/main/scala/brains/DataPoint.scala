@@ -39,7 +39,7 @@ case class NumericDataPoint(fields:Seq[Symbol], values:Seq[Double], label:String
   def distance(other:Seq[Double]):Double = {
     require(values.size == other.size)
     var squares = 0d
-    for (i <- 0 until values.size) {
+    for (i <- values.indices) {
       squares += math.pow(values(i) - other(i), 2)
     }
     math.sqrt(squares)

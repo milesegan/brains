@@ -2,7 +2,7 @@ package brains.clustering
 
 import scala.annotation.tailrec
 
-object SpanningTree extends Algorithm with Driver {
+class SpanningTree extends Method {
   
   @tailrec 
   private 
@@ -32,3 +32,5 @@ object SpanningTree extends Algorithm with Driver {
   }
 
 }
+
+object SpanningTree extends Driver[SpanningTree]

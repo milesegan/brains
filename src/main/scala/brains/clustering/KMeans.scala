@@ -3,7 +3,7 @@ package brains.clustering
 import brains.NumericDataPoint
 import scala.annotation.tailrec
 
-object KMeans extends Algorithm with Driver {
+class KMeans extends Method {
 
   type Doubles = Seq[Double]
   type Centroids = Seq[Doubles]
@@ -33,7 +33,7 @@ object KMeans extends Algorithm with Driver {
   private
   def centroid(elements:Cluster):Doubles = {
     val values = elements.map(_.values)
-    val sums = for (i <- 0 until values.head.size) yield values.map(_(i)).sum
+    val sums = for (i <- values.head.indices) yield values.map(_(i)).sum
     sums.map(_ / elements.size)
   }
 
@@ -43,3 +43,5 @@ object KMeans extends Algorithm with Driver {
   }
 
 }
+
+object KMeans extends Driver[KMeans]

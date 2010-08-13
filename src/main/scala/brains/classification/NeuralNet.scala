@@ -20,7 +20,7 @@ class NeuralNet(val nInputs:Int, val nHidden:Int, val nOutputs:Int) {
     val newN = m(0).size
     val a = Array.ofDim[Double](newN)
     for (i <- 0 until newN) {
-      for (j <- 0 until v.size) {
+      for (j <- v.indices) {
         a(i) += v(j) * m(j)(i)
       }
     }

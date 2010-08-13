@@ -2,7 +2,7 @@ package brains.clustering
 
 import scala.annotation.tailrec
 
-object SingleLink extends Algorithm with Driver {
+class SingleLink extends Method {
   
   @tailrec 
   private 
@@ -29,3 +29,4 @@ object SingleLink extends Algorithm with Driver {
 
 }
 
+object SingleLink extends Driver[SingleLink]

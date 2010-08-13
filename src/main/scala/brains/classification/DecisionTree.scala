@@ -3,8 +3,8 @@ package brains.classification
 import brains.StringDataPoint
 import annotation.tailrec
 
-class DecisionTreeClassifier(trainingData:Seq[StringDataPoint], outcomeKey:Symbol) 
-extends Classifier(trainingData, outcomeKey) {
+class DecisionTree(trainingData:Seq[StringDataPoint], outcomeKey:Symbol) 
+extends Method(trainingData, outcomeKey) {
 
   sealed abstract class Tree
   case class Leaf(outcome:String) extends Tree
@@ -74,8 +74,8 @@ extends Classifier(trainingData, outcomeKey) {
 
 object DecisionTree extends Driver {
 
-  def classifier(trainingData:Seq[StringDataPoint], outcomeKey:Symbol) = {
-    new DecisionTreeClassifier(trainingData, outcomeKey)
+  def method(trainingData:Seq[StringDataPoint], outcomeKey:Symbol) = {
+    new DecisionTree(trainingData, outcomeKey)
   }
 
 }
