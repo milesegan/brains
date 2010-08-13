@@ -32,12 +32,15 @@ extends Method(trainingData, outcomeKey) {
   private
   def buildTree(data:Seq[StringDataPoint], pm:ProbabilityMap):Tree = {
     if (pm.outcomes.size == 1) return Leaf(pm.outcomes.head)
+    if (data.isEmpty || pm.features.isEmpty) return Leaf(pm.mostCommonOutcome)
 
     val gains = for (f <- pm.features) yield (calcIGain(f, pm), f)
     val bestF = gains.toSeq.sortBy(_._1).last._2
     val otherF = pm.features.filter(_ == bestF)
     val children = for (value <- pm.featureValues(bestF)) yield {
-      val newData = data.filter{ d => d.values(bestF) == value }
+      val newData = for (d <- data if d.values(bestF) == value) yield {
+        StringDataPoint(d.values - bestF, d.label)
+      }
       val newOutcomes = data.map{ d => d.values(outcomeKey) }.toSet
       (value, buildTree(newData, new ProbabilityMap(newData, outcomeKey)))
     }

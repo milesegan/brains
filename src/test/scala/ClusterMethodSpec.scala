@@ -7,7 +7,7 @@ class ClusterMethodSpec extends Spec with ShouldMatchers {
 
   describe("ClusterMethods") {
 
-    val testData = NumericDataPoint.readFile("data/iris-data.csv")
+    val testData = NumericDataPoint.readFile("data/iris.csv")
 
     describe("KMeans") {
       val m = new KMeans

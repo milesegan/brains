@@ -7,7 +7,7 @@ class DataPointSpec extends Spec with ShouldMatchers {
 
   describe("NumericDataPoint") {
 
-    val testData = NumericDataPoint.readFile("data/iris-data.csv")
+    val testData = NumericDataPoint.readFile("data/iris.csv")
     it ("should contain data") {
       testData.size should be > 0
     }
@@ -16,7 +16,7 @@ class DataPointSpec extends Spec with ShouldMatchers {
 
   describe("StringDataPoint") {
 
-    val testData = StringDataPoint.readFile("data/agaricus-lepiota.data")
+    val testData = StringDataPoint.readFile("data/mushroom.csv")
     it ("should contain data") {
       testData.size should be > 0
     }

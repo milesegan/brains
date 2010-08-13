@@ -6,8 +6,8 @@ object DataFile {
 
   def load(path:String):(Seq[Symbol],Seq[Seq[String]]) = {
     val src = new io.BufferedSource(new java.io.FileInputStream(path))
-    val lines = for (i <- src.getLines if !i.matches("""^(#.+|\s*)$""")) yield {
-      i.split("""\s?,\s?""").toSeq
+    val lines = for (i <- src.getLines if !i.matches("""^(#.*|\s*)$""")) yield {
+      i.trim.split("""\s?,\s?""").toSeq
     }
     val fields = lines.next.map { Symbol(_) }
     (fields, lines.toSeq)
