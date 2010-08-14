@@ -19,7 +19,7 @@ abstract class Driver {
       if (outcome == classified) correct += 1
       println(outcome + " => " + classified)
     }
-    println(correct.toDouble / total)
+    println("% correct = " + correct.toDouble / total)
   }
 
 }

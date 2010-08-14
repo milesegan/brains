@@ -16,3 +16,11 @@ So far it encompasses the following:
 * neural net
 * decision tree
 
+To run a quick test try this:
+
+install sbt
+
+at the root of this project run the following commands:
+
+    sbt 'classify bayes poisonous data/mushroom.csv'
+    sbt 'classify dtree poisonous data/mushroom.csv'

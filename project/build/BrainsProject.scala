@@ -2,13 +2,16 @@ import sbt._
 
 class BrainsProject(info: ProjectInfo) extends DefaultProject(info) with Exec
 {
-  def droolsVer = "5.1.0.M1"
-  val jbossRepo = "jboss maven repo" at "http://repository.jboss.org/maven2"
-  val drools_api = "org.drools" % "drools-api" % droolsVer
-  val drools_core = "org.drools" % "drools-core" % droolsVer
-  val drools_compiler = "org.drools" % "drools-compiler" % droolsVer
   val scalatest = "org.scalatest" % "scalatest" % "1.2"
   
-  lazy val dtree = runTask("brains.classification.DecisionTree") describedAs "runs decision tree"
-  lazy val nbayes = runTask("brains.classification.NaiveBayes") describedAs "runs naive bayes"
+  def doClassify(classname:String, args:Array[String]) = runTask(Some(classname), runClasspath, args) dependsOn(compile)
+
+  lazy val classify = task { args =>
+    (args.first, args.size) match {
+      case ("dtree", 3) => doClassify("brains.classification.DecisionTree", args.drop(1))
+      case ("bayes", 3) => doClassify("brains.classification.NaiveBayes", args.drop(1))
+      case _ => task { Some("usage: classify dtree|bayes outcomekey dataset") }
+    }
+  } describedAs "run a classifier on the specified data set"
+
 }
