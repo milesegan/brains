@@ -6,7 +6,7 @@ class SpanningTree extends Method {
   
   @tailrec 
   private 
-  def buildClusters(d:Double, points:Cluster, thisCluster:Cluster, clusters:Clusters):Clusters = {
+  def buildClusters(d: Double, points: Cluster, thisCluster: Cluster, clusters: Clusters): Clusters = {
       if (points.isEmpty) clusters
       else {
         val current = thisCluster.head
@@ -19,9 +19,9 @@ class SpanningTree extends Method {
       }
   }
 
-  def cluster(k:Int, points:Cluster):Clusters = {
+  def cluster(k: Int, points: Cluster): Clusters = {
     @tailrec
-    def doCluster(clusters:Clusters, distance:Double):Clusters = {
+    def doCluster(clusters: Clusters, distance: Double): Clusters = {
       val newClusters = buildClusters(distance, points.tail, Seq(points.head), Seq())
       if (newClusters.size == k) newClusters
       else doCluster(newClusters, distance + 1)

@@ -2,7 +2,7 @@ package brains.classification
 
 import brains.NumericDataPoint
 
-class NeuralNet(val nInputs:Int, val nHidden:Int, val nOutputs:Int) {
+class NeuralNet(val nInputs: Int, val nHidden: Int, val nOutputs: Int) {
 
   val Beta = 1d
   val Eta = 0.1d
@@ -10,12 +10,12 @@ class NeuralNet(val nInputs:Int, val nHidden:Int, val nOutputs:Int) {
   val hWeights = Array.fill[Double](nInputs + 1, nHidden) { randInitWeight } // +1 for bias node, weight at end
   val oWeights = Array.fill[Double](nHidden + 1, nOutputs) { randInitWeight } // +1 for bias node
 
-  private def randInitWeight:Double = { 
+  private def randInitWeight: Double = { 
     val maxInitWeight = 1 / math.sqrt(nHidden)
     util.Random.nextDouble * 2 * maxInitWeight - maxInitWeight
   }
 
-  private def multMatrix(v:Array[Double], m:Array[Array[Double]]):Array[Double] = {
+  private def multMatrix(v: Array[Double], m: Array[Array[Double]]): Array[Double] = {
     require(m.size == v.size)
     val newN = m(0).size
     val a = Array.ofDim[Double](newN)
@@ -27,21 +27,21 @@ class NeuralNet(val nInputs:Int, val nHidden:Int, val nOutputs:Int) {
     a
   }
 
-  private def error(a:Array[Double], b:Array[Double]):Double = {
+  private def error(a: Array[Double], b: Array[Double]):Double = {
     require(a.size == b.size)
     (a zip b).map { case(a,b) => math.pow(a - b, 2) }.sum
   }
 
-  private def activation(v:Double) = 1.0d / (1 + math.exp(-Beta * v)) // sigmoid activation
+  private def activation(v: Double) = 1.0d / (1 + math.exp(-Beta * v)) // sigmoid activation
 
-  def classify(input:Array[Double]):(Array[Double],Array[Double]) = {
+  def classify(input: Array[Double]): (Array[Double],Array[Double]) = {
     require(input.size == nInputs)
     val hAct = multMatrix(input :+ -1d, hWeights) map activation // add -1d for bias node
     val oAct = multMatrix(hAct :+ -1d, oWeights) map activation
     hAct -> oAct
   }
 
-  def train(input:Array[Double], output:Array[Double]) = {
+  def train(input: Array[Double], output: Array[Double]) = {
     val (hAct, oAct) = classify(input)
 
     // calc output error
@@ -69,7 +69,7 @@ class NeuralNet(val nInputs:Int, val nHidden:Int, val nOutputs:Int) {
 
 object NeuralNet {
 
-  def main(args:Array[String]) = {
+  def main(args: Array[String]) = {
     val rawData = NumericDataPoint.readFile(args.head)
     val mappedData = for (i <- rawData) yield {
       val (klass, vals) = (i.values.head, i.values.tail)

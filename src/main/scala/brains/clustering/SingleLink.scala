@@ -6,7 +6,7 @@ class SingleLink extends Method {
   
   @tailrec 
   private 
-  def buildClusters(distance:Double, points:Cluster, clusters:Clusters):Clusters = {
+  def buildClusters(distance: Double, points: Cluster, clusters: Clusters): Clusters = {
       if (points.isEmpty) clusters
       else {
         val p :: others = points.toList
@@ -15,9 +15,9 @@ class SingleLink extends Method {
       }
   }
 
-  def cluster(k:Int, points:Cluster):Clusters = {
+  def cluster(k: Int, points: Cluster): Clusters = {
     @tailrec
-    def doCluster(clusters:Clusters, distance:Double):Clusters = {
+    def doCluster(clusters: Clusters, distance: Double): Clusters = {
       val newClusters = buildClusters(distance, points, Seq())
       if (newClusters.size <= k) newClusters
       else doCluster(newClusters, distance + 1)

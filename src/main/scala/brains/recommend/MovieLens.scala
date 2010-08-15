@@ -4,7 +4,7 @@ import annotation.tailrec
 import io.BufferedSource
 import collection.immutable.HashMap
 
-class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
+class MovieLens(movieFile: BufferedSource, ratingFile: BufferedSource) {
 
   type Ratings = HashMap[Int,HashMap[Int,Double]]
 
@@ -18,7 +18,7 @@ class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
   val movieRatings = loadRatings(ratingFile.getLines, new Ratings)
 
   @tailrec
-  private def loadRatings(file:Iterator[String], ratings:Ratings):Ratings = {
+  private def loadRatings(file: Iterator[String], ratings: Ratings):Ratings = {
     if (file.isEmpty) ratings
     else {
       val user :: movie :: rating :: rest = file.next.split(SEPARATOR).map(_.toInt).toList
@@ -28,7 +28,7 @@ class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
     }
   }
 
-  def similarity(a:Int, b:Int):Double = {
+  def similarity(a: Int, b: Int): Double = {
     val ratingsA = movieRatings.get(a).getOrElse { return 0.0 }
     val ratingsB = movieRatings.get(b).getOrElse { return 0.0 }
 
@@ -44,7 +44,7 @@ class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
     pearson(commonA, commonB)
   }
 
-  def pearson(a:Seq[Double], b:Seq[Double]):Double = {
+  def pearson(a: Seq[Double], b: Seq[Double]): Double = {
     if (a.isEmpty) return 0.0 // no overlapping ratings
 
     var (meanA, devA) = meanAndDev(a)
@@ -59,9 +59,9 @@ class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
     }
   }
 
-  def mean(values:Seq[Double]):Double = values.sum / values.size
+  def mean(values: Seq[Double]): Double = values.sum / values.size
 
-  def meanAndDev(values:Seq[Double]):(Double,Double) = {
+  def meanAndDev(values: Seq[Double]): (Double,Double) = {
     val meanV = mean(values)
     val squares = values.map { v => (v - meanV) * (v - meanV) }.reduceLeft(_ + _)
     meanV -> math.sqrt(squares / values.size)
@@ -69,9 +69,9 @@ class MovieLens(movieFile:BufferedSource, ratingFile:BufferedSource) {
 }
 
 object MovieLens {
-  def openFile(path:String) = new io.BufferedSource(new java.io.FileInputStream(path))
+  def openFile(path: String) = new io.BufferedSource(new java.io.FileInputStream(path))
 
-  def main(args:Array[String]) = {
+  def main(args: Array[String]) = {
     val set = new MovieLens(openFile(args(0)), openFile(args(1)))
     val movies = set.movies.keySet.toSeq
     val sims = for (m <- movies) yield (set.similarity(86,m), set.movies(m))

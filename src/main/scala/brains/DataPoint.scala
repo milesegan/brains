@@ -4,7 +4,7 @@ import brains.util._
 
 object DataFile {
 
-  def load(path:String):(Seq[Symbol],Seq[Seq[String]]) = {
+  def load(path: String): (Seq[Symbol],Seq[Seq[String]]) = {
     val src = new io.BufferedSource(new java.io.FileInputStream(path))
     val lines = for (i <- src.getLines if !i.matches("""^(#.*|\s*)$""")) yield {
       i.trim.split("""\s?,\s?""").toSeq
@@ -15,11 +15,11 @@ object DataFile {
 
 }
 
-case class StringDataPoint(values:Map[Symbol,String], label:String)
+case class StringDataPoint(values: Map[Symbol,String], label: String)
 
 object StringDataPoint {
 
-  def readFile(path:String):Seq[StringDataPoint] = {
+  def readFile(path: String): Seq[StringDataPoint] = {
     val (fields, lines) = DataFile.load(path)
     for (d <- lines) yield {
       val label = d.head
@@ -29,14 +29,14 @@ object StringDataPoint {
   }
 }
 
-case class NumericDataPoint(fields:Seq[Symbol], values:Seq[Double], label:String) {
+case class NumericDataPoint(fields: Seq[Symbol], values: Seq[Double], label: String) {
 
-  def distance(other:NumericDataPoint):Double = {
+  def distance(other: NumericDataPoint): Double = {
     // memoize
     NumericDataPoint.cache +? ((this,other), distance(other.values))
   }
 
-  def distance(other:Seq[Double]):Double = {
+  def distance(other: Seq[Double]): Double = {
     require(values.size == other.size)
     var squares = 0d
     for (i <- values.indices) {
@@ -50,7 +50,7 @@ object NumericDataPoint {
 
   private val cache = collection.mutable.Map.empty[(NumericDataPoint,NumericDataPoint), Double]
 
-  def readFile(path:String) = {
+  def readFile(path: String) = {
     val (fields, lines) = DataFile.load(path)
     for (d <- lines) yield {
       val label = d.head

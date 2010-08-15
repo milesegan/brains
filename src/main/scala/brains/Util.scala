@@ -2,10 +2,10 @@ package brains
 
 import collection.mutable.{ Map => MMap }
 
-class MutableMapGetOrElseUpdateWrapper[T,U](m:MMap[T,U]) {
-  def +?(k:T, v:U) = m.getOrElseUpdate(k, v)
+class MutableMapGetOrElseUpdateWrapper[A,B](m: MMap[A,B]) {
+  def +?(k:A, v:B) = m.getOrElseUpdate(k, v)
 }
 
 object util {
-  implicit def map2MutWrapper[T,U](m:MMap[T,U]) = new MutableMapGetOrElseUpdateWrapper(m)
+  implicit def map2MutWrapper[A,B](m:MMap[A,B]) = new MutableMapGetOrElseUpdateWrapper(m)
 }

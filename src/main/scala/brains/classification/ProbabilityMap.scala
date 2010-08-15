@@ -3,7 +3,7 @@ package brains.classification
 import brains.StringDataPoint
 import brains.util._
 
-class ProbabilityMap(data:Seq[StringDataPoint], val outcomeKey:Symbol) {
+class ProbabilityMap(data: Seq[StringDataPoint], val outcomeKey: Symbol) {
   import collection.mutable.{ HashMap => HM }
   
   type OP = HM[String,Double] // probabilities of outcomes
@@ -18,22 +18,22 @@ class ProbabilityMap(data:Seq[StringDataPoint], val outcomeKey:Symbol) {
 
   def features = probF.keySet
 
-  def featureValues(feature:Symbol) = probF(feature).keySet
+  def featureValues(feature: Symbol) = probF(feature).keySet
 
-  def pO(outcome:String):Option[Double] = probO.get(outcome)
+  def pO(outcome: String): Option[Double] = probO.get(outcome)
 
-  def pF(feature:Symbol, value:String):Option[Double] = {
+  def pF(feature: Symbol, value: String): Option[Double] = {
     for (x <- probF.get(feature); y <- x.get(value)) yield y
   }
 
-  def pOF(feature:Symbol, value:String, outcome:String):Option[Double] = {
+  def pOF(feature: Symbol, value: String, outcome: String): Option[Double] = {
     for (x <- probOF.get(feature); y <- x.get(value); z <- y.get(outcome)) yield z
   }
 
-  private def build(data:Seq[StringDataPoint]):(OP, FP, OFP) = {
-    val o:OP = HM.empty
-    val f:FP = HM.empty
-    val of:OFP = HM.empty
+  private def build(data: Seq[StringDataPoint]): (OP, FP, OFP) = {
+    val o: OP = HM.empty
+    val f :FP = HM.empty
+    val of: OFP = HM.empty
     for (p <- data) {
       val (outcome, vals) = p.values(outcomeKey) -> (p.values - outcomeKey)
       

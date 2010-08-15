@@ -3,12 +3,12 @@ package brains.classification
 import brains.StringDataPoint
 import annotation.tailrec
 
-class DecisionTree(trainingData:Seq[StringDataPoint], outcomeKey:Symbol) 
+class DecisionTree(trainingData: Seq[StringDataPoint], outcomeKey: Symbol) 
 extends Method(trainingData, outcomeKey) {
 
   sealed abstract class Tree
-  case class Leaf(outcome:String) extends Tree
-  case class Node(feature:Symbol, branches:Map[String,Tree]) extends Tree
+  case class Leaf(outcome: String) extends Tree
+  case class Node(feature: Symbol, branches: Map[String,Tree]) extends Tree
 
   require(trainingData.nonEmpty)
   
@@ -16,7 +16,7 @@ extends Method(trainingData, outcomeKey) {
   val tree = buildTree(trainingData, pm)
 
   private
-  def calcIGain(feature:Symbol, pm:ProbabilityMap):Double = {
+  def calcIGain(feature: Symbol, pm: ProbabilityMap): Double = {
     val outcomeEntropies = for (o <- pm.outcomes; p <- pm.pO(o)) yield { entropy(p) }
     val allVEntropies = 
       for (value <- pm.featureValues(feature);
@@ -30,7 +30,7 @@ extends Method(trainingData, outcomeKey) {
   }
 
   private
-  def buildTree(data:Seq[StringDataPoint], pm:ProbabilityMap):Tree = {
+  def buildTree(data: Seq[StringDataPoint], pm: ProbabilityMap): Tree = {
     if (pm.outcomes.size == 1) return Leaf(pm.outcomes.head)
     if (data.isEmpty || pm.features.isEmpty) return Leaf(pm.mostCommonOutcome)
 
@@ -47,14 +47,14 @@ extends Method(trainingData, outcomeKey) {
     Node(bestF, Map.empty ++ children)
   }
 
-  private def entropy(p:Double) = -p * log2(p)
+  private def entropy(p: Double) = -p * log2(p)
 
-  private def log2(x:Double):Double = math.log(x) / math.log(2d)
+  private def log2(x: Double): Double = math.log(x) / math.log(2d)
 
-  def classify(p:StringDataPoint):String = {
+  def classify(p: StringDataPoint): String = {
 
     @tailrec
-    def doClassify(p:StringDataPoint, tree:Tree):String = {
+    def doClassify(p: StringDataPoint, tree: Tree): String = {
       tree match {
         case Leaf(outcome) => outcome
         case Node(feature, branches) => {
@@ -70,14 +70,14 @@ extends Method(trainingData, outcomeKey) {
   }
   
   override
-  def toString:String = {
+  def toString: String = {
     tree.toString
   }
 }
 
 object DecisionTree extends Driver {
 
-  def method(trainingData:Seq[StringDataPoint], outcomeKey:Symbol) = {
+  def method(trainingData: Seq[StringDataPoint], outcomeKey: Symbol) = {
     new DecisionTree(trainingData, outcomeKey)
   }
 

@@ -4,9 +4,9 @@ import brains.StringDataPoint
 
 abstract class Driver {
 
-  def method(trainingData:Seq[StringDataPoint], outcomeKey:Symbol):Method
+  def method(trainingData: Seq[StringDataPoint], outcomeKey: Symbol):Method
 
-  def main(args:Array[String]) = {
+  def main(args: Array[String]) = {
     val outcomeKey = Symbol(args(0))
     val data = util.Random.shuffle(StringDataPoint.readFile(args(1)))
     val (testSet, trainingSet) = data.splitAt(data.size / 3)
