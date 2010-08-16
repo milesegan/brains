@@ -41,7 +41,6 @@ extends Method(trainingData, outcomeKey) {
       val newData = for (d <- data if d.values(bestF) == value) yield {
         StringDataPoint(d.values - bestF, d.label)
       }
-      val newOutcomes = data.map{ d => d.values(outcomeKey) }.toSet
       (value, buildTree(newData, new ProbabilityMap(newData, outcomeKey)))
     }
     Node(bestF, Map.empty ++ children)
