@@ -3,6 +3,10 @@ package brains.clustering
 import brains.NumericDataPoint
 import scala.annotation.tailrec
 
+/**
+ * Clusters numeric datasets via the k-means method.
+ * @see <a href="http://en.wikipedia.org/wiki/K-means_clustering">K-means clustering</a>.
+ */
 class KMeans extends Method {
 
   type Doubles = Seq[Double]

@@ -1,4 +1,5 @@
 import sbt._
+import Process._
 
 class BrainsProject(info: ProjectInfo) extends DefaultProject(info) with Exec
 {
@@ -13,5 +14,10 @@ class BrainsProject(info: ProjectInfo) extends DefaultProject(info) with Exec
       case _ => task { Some("usage: classify dtree|bayes outcomekey dataset") }
     }
   } describedAs "run a classifier on the specified data set"
+
+  lazy val updateDoc = task {
+    "rsync -av --delete " + docPath + "/main/api/ burgerkone.com:burgerkone.com/brains/" ! log
+    None
+  } describedAs("update published scaladoc for project")
 
 }

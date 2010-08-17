@@ -2,6 +2,30 @@ package brains
 
 import brains.util._
 
+/**
+ * Loads data from text files.
+ *
+ * The files should be in the following format:
+ *
+ * <ul>
+ * <li>Lines beginning with # or containing only whitespace are discarded.
+ * <li>The first non-discard line should be a comma separated header listing the names
+ * of the features of each datapoint. The first of which will be used as the
+ * "label", or unique ID of the field.
+ * <li>Following lines should each contain the complete feature values of a
+ * a single datapoint, in the same order as the header.
+ * </ul>
+ *
+ * For example:
+ * <pre>
+ * # sample data set
+ * #
+ * id,size,weight,height
+ * 1,10,150,72
+ * 2,12,200,68
+ * 3,8,95,60
+ * </pre>
+ */
 object DataFile {
 
   def load(path: String): (Seq[Symbol],Seq[Seq[String]]) = {
@@ -15,6 +39,9 @@ object DataFile {
 
 }
 
+/**
+ * A datapoint representing discrete values
+ */
 case class StringDataPoint(values: Map[Symbol,String], label: String)
 
 object StringDataPoint {
@@ -29,13 +56,23 @@ object StringDataPoint {
   }
 }
 
+/**
+ * A datapoint representing continuous values.
+ */
 case class NumericDataPoint(fields: Seq[Symbol], values: Seq[Double], label: String) {
 
+  /**
+   * Computes the euclidean distance between this point and the values
+   * of other.
+   */
   def distance(other: NumericDataPoint): Double = {
     // memoize
     NumericDataPoint.cache +? ((this,other), distance(other.values))
   }
 
+  /**
+   * Computes the euclidean distance between this point and other.
+   */
   def distance(other: Seq[Double]): Double = {
     require(values.size == other.size)
     var squares = 0d

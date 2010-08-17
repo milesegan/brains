@@ -3,6 +3,11 @@ package brains.classification
 import brains.StringDataPoint
 import annotation.tailrec
 
+/**
+ * Classifies sets of points via a decision tree.
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Decision_tree">decision tree</a>.
+ */
 class DecisionTree(trainingData: Seq[StringDataPoint], outcomeKey: Symbol) 
 extends Method(trainingData, outcomeKey) {
 
@@ -12,7 +17,10 @@ extends Method(trainingData, outcomeKey) {
 
   require(trainingData.nonEmpty)
   
+  private
   val pm = new ProbabilityMap(trainingData, outcomeKey)
+
+  private
   val tree = buildTree(trainingData, pm)
 
   private

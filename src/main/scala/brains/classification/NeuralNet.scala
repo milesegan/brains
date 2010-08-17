@@ -2,12 +2,20 @@ package brains.classification
 
 import brains.NumericDataPoint
 
+/**
+ * Single-layer neural network implementation.
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Neural_net">neural net</a>.
+ */
 class NeuralNet(val nInputs: Int, val nHidden: Int, val nOutputs: Int) {
 
-  val Beta = 1d
-  val Eta = 0.1d
+  private val Beta = 1d
+  private val Eta = 0.1d
 
+  private
   val hWeights = Array.fill[Double](nInputs + 1, nHidden) { randInitWeight } // +1 for bias node, weight at end
+
+  private
   val oWeights = Array.fill[Double](nHidden + 1, nOutputs) { randInitWeight } // +1 for bias node
 
   private def randInitWeight: Double = { 
@@ -34,15 +42,33 @@ class NeuralNet(val nInputs: Int, val nHidden: Int, val nOutputs: Int) {
 
   private def activation(v: Double) = 1.0d / (1 + math.exp(-Beta * v)) // sigmoid activation
 
-  def classify(input: Array[Double]): (Array[Double],Array[Double]) = {
+  // Classifies point, returning both outputs and internal weights.
+  private def doClassify(input: Array[Double]): (Array[Double], Array[Double]) = {
     require(input.size == nInputs)
     val hAct = multMatrix(input :+ -1d, hWeights) map activation // add -1d for bias node
     val oAct = multMatrix(hAct :+ -1d, oWeights) map activation
     hAct -> oAct
   }
 
+  /**
+   * Classifies the input with weights learned during training.
+   *
+   * @return The output of the network for the given input.
+   */
+  def classify(input: Array[Double]): Array[Double] = {
+    require(input.size == nInputs)
+    val (hAct, oAct) = doClassify(input)
+    oAct
+  }
+
+  /**
+   * Trains the network, updating weights.
+   *
+   * @param input The array of numeric values going in to the network.
+   * @param outpt The correct output for the given input.
+   */
   def train(input: Array[Double], output: Array[Double]) = {
-    val (hAct, oAct) = classify(input)
+    val (hAct, oAct) = doClassify(input)
 
     // calc output error
     val oErr = for (k <- 0 until nOutputs) yield {
@@ -69,6 +95,9 @@ class NeuralNet(val nInputs: Int, val nHidden: Int, val nOutputs: Int) {
 
 object NeuralNet {
 
+  /**
+   * TODO: document this
+   */
   def main(args: Array[String]) = {
     val rawData = NumericDataPoint.readFile(args.head)
     val mappedData = for (i <- rawData) yield {
@@ -83,7 +112,7 @@ object NeuralNet {
       for ((target,point) <- trainingSet) net.train(point.values.toArray, target)
     }
     for ((target,point) <- testSet) {
-      val (hAct, oAct) = net.classify(point.values.toArray)
+      val oAct = net.classify(point.values.toArray)
       println(target.mkString(", ") + " -> " + oAct.mkString(", "))
     }
   }

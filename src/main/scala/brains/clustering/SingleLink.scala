@@ -2,6 +2,11 @@ package brains.clustering
 
 import scala.annotation.tailrec
 
+/**
+ * Clusters a numeric dataset via the single-link method.
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Single_link_clustering">single-link clustering</a>.
+ */
 class SingleLink extends Method {
   
   @tailrec 

@@ -4,10 +4,18 @@ import annotation.tailrec
 import io.BufferedSource
 import collection.immutable.HashMap
 
+/**
+ * Performs item-based recommendations on the GroupLens movie
+ * rating dataset.
+ *
+ * @see <a href="http://www.grouplens.org/">GroupLens</a>.
+ */
 class MovieLens(movieFile: BufferedSource, ratingFile: BufferedSource) {
 
+  private
   type Ratings = HashMap[Int,HashMap[Int,Double]]
 
+  private
   val SEPARATOR = "::"
 
   val movies = movieFile.getLines.map { line =>
@@ -28,6 +36,12 @@ class MovieLens(movieFile: BufferedSource, ratingFile: BufferedSource) {
     }
   }
 
+  /**
+   * Calculates the similarity of two items.
+   *
+   * @param a The id of the first movie to compare.
+   * @param b The id of the second movie to compare.
+   */
   def similarity(a: Int, b: Int): Double = {
     val ratingsA = movieRatings.get(a).getOrElse { return 0.0 }
     val ratingsB = movieRatings.get(b).getOrElse { return 0.0 }
@@ -44,6 +58,11 @@ class MovieLens(movieFile: BufferedSource, ratingFile: BufferedSource) {
     pearson(commonA, commonB)
   }
 
+  /**
+   * Finds the pearson correlation of two sequences of numbers.
+   *
+   * @see <a href="http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient>pearson coefficent</a>.
+   */
   def pearson(a: Seq[Double], b: Seq[Double]): Double = {
     if (a.isEmpty) return 0.0 // no overlapping ratings
 
@@ -59,8 +78,14 @@ class MovieLens(movieFile: BufferedSource, ratingFile: BufferedSource) {
     }
   }
 
+  /**
+   * Finds the mean of a sequence of numbers.
+   */
   def mean(values: Seq[Double]): Double = values.sum / values.size
 
+  /**
+   * Finds the mean and standard deviation of a sequence of numbers.
+   */
   def meanAndDev(values: Seq[Double]): (Double,Double) = {
     val meanV = mean(values)
     val squares = values.map { v => (v - meanV) * (v - meanV) }.reduceLeft(_ + _)

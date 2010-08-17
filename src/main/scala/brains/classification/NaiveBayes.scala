@@ -2,9 +2,15 @@ package brains.classification
 
 import brains.StringDataPoint
 
+/**
+ * Classifies sets of points by the naive Bayes method.
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Naive_bayes">naive bayes</a>.
+ */
 class NaiveBayes(trainingSet: Seq[StringDataPoint], outcomeKey: Symbol) 
 extends Method(trainingSet, outcomeKey) {
 
+  private
   val pm = new ProbabilityMap(trainingSet, outcomeKey)
 
   private def bayesProb(feature: Symbol, value: String, outcome: String): Double = {

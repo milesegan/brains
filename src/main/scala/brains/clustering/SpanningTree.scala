@@ -2,6 +2,11 @@ package brains.clustering
 
 import scala.annotation.tailrec
 
+/**
+ * Clusters a numeric dataset via the single-link method.
+ *
+ * @see <a href="http://en.wikipedia.org/wiki/Kruskal's_algorithm">Kruskal's algorithm</a>.
+ */
 class SpanningTree extends Method {
   
   @tailrec 
