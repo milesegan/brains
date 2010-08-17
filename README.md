@@ -25,4 +25,4 @@ at the root of this project run the following commands:
     sbt 'classify bayes poisonous data/mushroom.csv'
     sbt 'classify dtree poisonous data/mushroom.csv'
 
-scaladoc for the project is available at http://burgerkone.com/brains/
+scaladoc for the project is available [here](http://burgerkone.com/brains/)
