@@ -1,4 +1,4 @@
-package brains
+package brains.data
 
 import brains.util._
 

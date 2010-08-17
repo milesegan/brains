@@ -1,6 +1,6 @@
 package brains.classification
 
-import brains.StringDataPoint
+import brains.data.StringDataPoint
 
 /**
  * Common interface of all classification methods.

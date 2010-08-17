@@ -1,6 +1,6 @@
 package brains.classification
 
-import brains.StringDataPoint
+import brains.data.StringDataPoint
 
 /**
  * Classifies sets of points by the naive Bayes method.

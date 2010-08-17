@@ -1,6 +1,6 @@
 import org.scalatest.Spec
 import org.scalatest.matchers.ShouldMatchers
-import brains.StringDataPoint
+import brains.data.StringDataPoint
 import brains.classification.{Method,DecisionTree,NaiveBayes,NeuralNet}
 
 class ClassificationMethodSpec extends Spec with ShouldMatchers {

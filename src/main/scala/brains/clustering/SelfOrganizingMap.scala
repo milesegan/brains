@@ -1,6 +1,6 @@
 package brains.clustering
 
-import brains.NumericDataPoint
+import brains.data.NumericDataPoint
 
 /**
  * Clusters numeric datasets via the self organizing map method.

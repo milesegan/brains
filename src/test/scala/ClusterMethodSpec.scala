@@ -1,6 +1,6 @@
 import org.scalatest.Spec
 import org.scalatest.matchers.ShouldMatchers
-import brains.NumericDataPoint
+import brains.data.NumericDataPoint
 import brains.clustering.{KMeans, SingleLink, SpanningTree}
 
 class ClusterMethodSpec extends Spec with ShouldMatchers {

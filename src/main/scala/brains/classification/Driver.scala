@@ -1,6 +1,6 @@
 package brains.classification
 
-import brains.StringDataPoint
+import brains.data.StringDataPoint
 
 /**
  * Command line & test driver for classification methods.

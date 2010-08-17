@@ -1,6 +1,6 @@
 package brains.clustering
 
-import brains.NumericDataPoint
+import brains.data.NumericDataPoint
 
 /**
  * Command line & test driver for clustering methods.

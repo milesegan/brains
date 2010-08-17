@@ -4,7 +4,7 @@ package brains.clustering
  * Common interface provided by all clustering methods.
  */
 trait Method {
-  type Cluster = Seq[brains.NumericDataPoint]
+  type Cluster = Seq[brains.data.NumericDataPoint]
   type Clusters = Seq[Cluster]
 
   /**

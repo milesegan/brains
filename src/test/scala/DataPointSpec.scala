@@ -1,7 +1,7 @@
 import org.scalatest.Spec
 import org.scalatest.matchers.ShouldMatchers
-import brains.NumericDataPoint
-import brains.StringDataPoint
+import brains.data.NumericDataPoint
+import brains.data.StringDataPoint
 
 class DataPointSpec extends Spec with ShouldMatchers {
 

@@ -1,6 +1,6 @@
 package brains.classification
 
-import brains.NumericDataPoint
+import brains.data.NumericDataPoint
 
 /**
  * Single-layer neural network implementation.
