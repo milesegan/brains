@@ -5,20 +5,18 @@
 (defn- inc-map [map path]
   (assoc-in map path (+ 1 (get-in map path 0))))
 
-(defn build [{:keys [outcome fields data]}]
-  (let [c (count data)]
-    (loop [data data p-f {} p-o {} p-of {}]
-      (if (empty? data)
-        {:count c :p-f p-f :p-o p-o :p-of p-of}
-        (let [p (first data)
-              o (outcome p)
-              vals (dissoc p outcome)]
-          (recur (rest data)
-                 (reduce inc-map p-f vals)
-                 (inc-map p-o [o])
-                 (reduce inc-map p-of
-                         (for [[f v] vals]
-                           [f v o]))))))))
+(defn build [outcome {:keys [fields data outcomes]}]
+  (loop [d data p-f {} p-o {} p-of {}]
+    (if (empty? d)
+      {:count (count data) :p-f p-f :p-o p-o :p-of p-of}
+      (let [{label :label values :values} (first d)
+            o (outcomes label)]
+        (recur (rest d)
+               (reduce inc-map p-f values)
+               (inc-map p-o [o])
+               (reduce inc-map p-of
+                       (for [[f v] values]
+                         [f v o])))))))
 
 (defn- to-prob [pm p]
   (if p

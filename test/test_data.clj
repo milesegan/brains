@@ -4,7 +4,8 @@
 
 (deftest test-load
   (testing "load a file"
-    (let [data (data/load-from-file :party "data/house-votes.csv")]
-      (is (= :party (:outcome data)))
-      (is (some #{:crime} (:fields data)))
-      (is (= 435 (count (:data data)))))))
+    (let [dataset (data/load-from-file "data/house-votes.csv")
+          dataset (data/extract-field :party :outcomes dataset)]
+      (is (some #{:crime} (:fields dataset)))
+      (is (= 435 (count (:outcomes dataset))))
+      (is (= 435 (count (:data dataset)))))))
