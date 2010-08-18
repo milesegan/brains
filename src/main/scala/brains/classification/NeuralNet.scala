@@ -101,18 +101,23 @@ object NeuralNet {
   def main(args: Array[String]) = {
     val klass = Symbol(args(0))
     val rawData = Data.loadNumberData(args(1))
+    val features = (rawData.head - klass).keys.toSeq
+    val classes = rawData.map(_(klass)).toSet.toSeq
     val mappedData = for (i <- rawData) yield {
-      val target = for (j <- 0 to 2) yield { if (i(klass) == j) 1.d else 0d }
-      target.toArray -> (i - klass)
+      val target = for (j <- classes) yield { if (i(klass) == j) 1.d else 0d }
+      val dArray = features.map(i(_)).toArray
+      target.toArray -> dArray
     }
     val shuffledData = util.Random.shuffle(mappedData.toSeq)
     val (testSet, trainingSet) = shuffledData.splitAt(shuffledData.size / 4)
-    val net = new NeuralNet(4, 5, 3)
+    val net = new NeuralNet(features.size, 6, classes.size)
     for (i <- 0 until 100) {
-      for ((target,point) <- trainingSet) net.train(point.values.toArray, target)
+      for ((target,point) <- trainingSet) {
+        net.train(point, target)
+      }
     }
     for ((target,point) <- testSet) {
-      val oAct = net.classify(point.values.toArray)
+      val oAct = net.classify(point)
       println(target.mkString(", ") + " -> " + oAct.mkString(", "))
     }
   }
