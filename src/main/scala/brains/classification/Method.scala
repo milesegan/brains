@@ -1,6 +1,6 @@
 package brains.classification
 
-import brains.data.StringDataPoint
+import brains.Data
 
 /**
  * Common interface of all classification methods.
@@ -9,14 +9,14 @@ import brains.data.StringDataPoint
  * @param outcomeKey The field in the dataset that corresponds to the class
  * of each datapoint.
  */
-abstract class Method(trainingData: Seq[StringDataPoint], val outcomeKey: Symbol) {
+abstract class Method(trainingData: Seq[(String,Data.SPoint)]) {
 
   /**
    * Classifies a point.
    *
    * @return The string representing the class of point p.
    */
-  def classify(p: StringDataPoint):String
+  def classify(p: Data.SPoint):String
 
 }
 

@@ -1,6 +1,6 @@
 package brains.classification
 
-import brains.data.StringDataPoint
+import brains.Data
 
 /**
  * Command line & test driver for classification methods.
@@ -11,11 +11,9 @@ abstract class Driver {
    * Returns the classification to be used by this driver to classify
    * the supplied dataset.
    *
-   * @param trainingData The dataset of points to be classified.
-   * @param outcomeKey The field in the dataset that corresponds to the correct
-   * class for each point.
+   * @param trainingData Tuples of (class, point)
    */
-  def method(trainingData: Seq[StringDataPoint], outcomeKey: Symbol):Method
+  def method(trainingData: Seq[(String,Data.SPoint)]): Method
 
   /**
    * Classifies the data in a data file.
@@ -30,17 +28,17 @@ abstract class Driver {
    * </code>
    */
   def main(args: Array[String]) = {
-    val outcomeKey = Symbol(args(0))
-    val data = util.Random.shuffle(StringDataPoint.readFile(args(1)))
-    val (testSet, trainingSet) = data.splitAt(data.size / 3)
-    val m = method(trainingSet, outcomeKey)
-    println(m)
+    val classKey = Symbol(args(0))
+    val data = util.Random.shuffle(Data.loadStringData(args(1)))
+    val mappedData = Data.extractFeature(classKey, data)
+    val (testSet, trainingSet) = mappedData.splitAt(mappedData.size / 4)
+    val m = method(trainingSet)
     var correct, total = 0
-    for (t <- testSet) {
-      val (outcome, classified) = t.values(outcomeKey) -> m.classify(t)
+    for ((c, p) <- testSet) {
+      val classified = m.classify(p)
       total += 1
-      if (outcome == classified) correct += 1
-      println(outcome + " => " + classified)
+      if (c == classified) correct += 1
+      println(c + " => " + classified)
     }
     println("% correct = " + correct.toDouble / total)
   }

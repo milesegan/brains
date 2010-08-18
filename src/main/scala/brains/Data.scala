@@ -1,98 +1,69 @@
-package brains.data
+package brains
 
 import brains.util._
 
-/**
- * Loads data from text files.
- *
- * The files should be in the following format:
- *
- * <ul>
- * <li>Lines beginning with # or containing only whitespace are discarded.
- * <li>The first non-discard line should be a comma separated header listing the names
- * of the features of each datapoint. The first of which will be used as the
- * "label", or unique ID of the field.
- * <li>Following lines should each contain the complete feature values of a
- * a single datapoint, in the same order as the header.
- * </ul>
- *
- * For example:
- * <pre>
- * # sample data set
- * #
- * id,size,weight,height
- * 1,10,150,72
- * 2,12,200,68
- * 3,8,95,60
- * </pre>
- */
-object DataFile {
+object Data {
 
-  def load(path: String): (Seq[Symbol],Seq[Seq[String]]) = {
+  /**
+   * A point made up of string values.
+   */
+  type SPoint = Map[Symbol,String]
+
+  /**
+   * A point made up of numeric values.
+   */
+  type NPoint = Map[Symbol,Double]
+
+  /**
+   * Loads raw data from text files.
+   *
+   * The files should be in the following format:
+   *
+   * <ul>
+   * <li>Lines beginning with # or containing only whitespace are discarded.
+   * <li>Following lines should each contain the complete feature values of a
+   * a single datapoint, in the same order as the header.
+   * </ul>
+   *
+   * For example:
+   * <pre>
+   * # sample data set
+   * #
+   * size,weight,height
+   * 10,150,72
+   * 12,200,68
+   * 8,95,60
+   * </pre>
+   */
+  def loadStringData(path: String): Seq[SPoint] = {
     val src = new io.BufferedSource(new java.io.FileInputStream(path))
     val lines = for (i <- src.getLines if !i.matches("""^(#.*|\s*)$""")) yield {
       i.trim.split("""\s?,\s?""").toSeq
     }
     val fields = lines.next.map { Symbol(_) }
-    (fields, lines.toSeq)
-  }
-
-}
-
-/**
- * A datapoint representing discrete values
- */
-case class StringDataPoint(values: Map[Symbol,String], label: String)
-
-object StringDataPoint {
-
-  def readFile(path: String): Seq[StringDataPoint] = {
-    val (fields, lines) = DataFile.load(path)
-    for (d <- lines) yield {
-      val label = d.head
-      val values = d.tail
-      new StringDataPoint(Map.empty ++ (fields.tail zip values), label)
+    val points = for (i <- lines if i.size == fields.size) yield {
+      Map.empty ++ (fields zip i)
     }
-  }
-}
-
-/**
- * A datapoint representing continuous values.
- */
-case class NumericDataPoint(fields: Seq[Symbol], values: Seq[Double], label: String) {
-
-  /**
-   * Computes the euclidean distance between this point and the values
-   * of other.
-   */
-  def distance(other: NumericDataPoint): Double = {
-    // memoize
-    NumericDataPoint.cache +? ((this,other), distance(other.values))
+    points.toSeq
   }
 
   /**
-   * Computes the euclidean distance between this point and other.
+   * Loads raw data and converts values to doubles.
+   *
+   * File format is the same as that of loadStringData.
    */
-  def distance(other: Seq[Double]): Double = {
-    require(values.size == other.size)
-    var squares = 0d
-    for (i <- values.indices) {
-      squares += math.pow(values(i) - other(i), 2)
-    }
-    math.sqrt(squares)
+  def loadNumberData(path: String): Seq[NPoint] = {
+    val stringData = loadStringData(path)
+    stringData.map { p => p.mapValues { _.toDouble } }
   }
-}
-
-object NumericDataPoint {
-
-  private val cache = collection.mutable.Map.empty[(NumericDataPoint,NumericDataPoint), Double]
-
-  def readFile(path: String) = {
-    val (fields, lines) = DataFile.load(path)
-    for (d <- lines) yield {
-      val label = d.head
-      val values = d.tail.map(_.toDouble)
-      new NumericDataPoint(fields.tail, values, label)
+  
+  /**
+   * Extracts feature from all points, returning a sequences of tuples
+   * the feature value the new point without the feature.
+   */
+  def extractFeature[A](feature: Symbol, points: Seq[Map[Symbol,A]]): Seq[(A, Map[Symbol,A])] = {
+    for (p <- points) yield {
+      (p(feature), p - feature)
     }
   }
 

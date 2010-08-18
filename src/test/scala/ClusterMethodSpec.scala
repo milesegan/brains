@@ -1,13 +1,13 @@
 import org.scalatest.Spec
 import org.scalatest.matchers.ShouldMatchers
-import brains.data.NumericDataPoint
+import brains.Data
 import brains.clustering.{KMeans, SingleLink, SpanningTree}
 
 class ClusterMethodSpec extends Spec with ShouldMatchers {
 
   describe("ClusterMethods") {
 
-    val testData = NumericDataPoint.readFile("data/iris.csv")
+    val testData = Data.loadNumberData("data/iris.csv")
 
     describe("KMeans") {
       val m = new KMeans

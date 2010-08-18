@@ -1,6 +1,5 @@
 package brains.clustering
 
-import brains.data.NumericDataPoint
 import scala.annotation.tailrec
 
 /**
@@ -9,8 +8,7 @@ import scala.annotation.tailrec
  */
 class KMeans extends Method {
 
-  type Doubles = Seq[Double]
-  type Centroids = Seq[Doubles]
+  type Centroids = Seq[Point]
 
   def cluster(k: Int, points: Cluster): Clusters = {
 
@@ -29,21 +27,22 @@ class KMeans extends Method {
   }
 
   private
-  def closestCentroid(centroids: Centroids, p: NumericDataPoint): Int = {
-    val distances = centroids.map{ p.distance }.zipWithIndex.sorted
+  def closestCentroid(centroids: Centroids, p: Point): Int = {
+    val distances = centroids.map{ distance(p, _) }.zipWithIndex.sorted
     distances.head._2
   }
 
   private
-  def centroid(elements: Cluster): Doubles = {
-    val values = elements.map(_.values)
-    val sums = for (i <- values.head.indices) yield values.map(_(i)).sum
-    sums.map(_ / elements.size)
+  def centroid(elements: Cluster): Point = {
+    val sums = for ((k,v) <- elements.head) yield {
+      (k, elements.map(_(k)).sum / elements.size)
+    }
+    Map.empty ++ sums
   }
 
   private
   def pickInitialCentroids(k: Int, points: Cluster): Centroids = {
-    util.Random.shuffle(points.toSeq).take(k).map(_.values)
+    util.Random.shuffle(points.toSeq).take(k)
   }
 
 }

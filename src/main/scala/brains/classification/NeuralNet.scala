@@ -1,6 +1,6 @@
 package brains.classification
 
-import brains.data.NumericDataPoint
+import brains.Data
 
 /**
  * Single-layer neural network implementation.
@@ -99,11 +99,11 @@ object NeuralNet {
    * TODO: document this
    */
   def main(args: Array[String]) = {
-    val rawData = NumericDataPoint.readFile(args.head)
+    val klass = Symbol(args(0))
+    val rawData = Data.loadNumberData(args(1))
     val mappedData = for (i <- rawData) yield {
-      val (klass, vals) = (i.values.head, i.values.tail)
-      val target = for (j <- 0 to 2) yield { if (klass == j) 1.d else 0d }
-      target.toArray -> new NumericDataPoint(i.fields, vals, i.label)
+      val target = for (j <- 0 to 2) yield { if (i(klass) == j) 1.d else 0d }
+      target.toArray -> (i - klass)
     }
     val shuffledData = util.Random.shuffle(mappedData.toSeq)
     val (testSet, trainingSet) = shuffledData.splitAt(shuffledData.size / 4)

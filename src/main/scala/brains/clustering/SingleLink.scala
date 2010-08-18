@@ -11,12 +11,12 @@ class SingleLink extends Method {
   
   @tailrec 
   private 
-  def buildClusters(distance: Double, points: Cluster, clusters: Clusters): Clusters = {
+  def buildClusters(d: Double, points: Cluster, clusters: Clusters): Clusters = {
       if (points.isEmpty) clusters
       else {
         val p :: others = points.toList
-        val (close, far) = others.partition(p.distance(_) < distance)
-        buildClusters(distance, far, clusters :+ (close :+ p))
+        val (close, far) = others.partition(distance(p, _) < d)
+        buildClusters(d, far, clusters :+ (close :+ p))
       }
   }
 

@@ -15,9 +15,9 @@ class SpanningTree extends Method {
       if (points.isEmpty) clusters
       else {
         val current = thisCluster.head
-        val sorted = points.sortBy { current distance _ }
+        val sorted = points.sortBy { distance(current, _) }
         val (closest, rest) = (sorted.head, sorted.tail)
-        if (current.distance(closest) < d)
+        if (distance(current, closest) < d)
           buildClusters(d, rest, thisCluster :+ closest, clusters)
         else
           buildClusters(d, points.tail, Seq(points.head), clusters :+ thisCluster)

@@ -1,6 +1,6 @@
 package brains.clustering
 
-import brains.data.NumericDataPoint
+import brains.Data
 
 /**
  * Command line & test driver for clustering methods.
@@ -21,11 +21,11 @@ class Driver[M <: Method](implicit man: Manifest[M]) {
    */
   def main(args: Array[String]) = {
     val numClusters = args.head.toInt
-    val data = NumericDataPoint.readFile(args(1)).toSeq
+    val data = Data.loadNumberData(args(1))
     val method = man.erasure.newInstance.asInstanceOf[M]
     val clusters = method.cluster(numClusters, data).sortBy(_.size)
     for (c <- clusters) {
-      println(c.map(_.label).sorted.mkString(" "))
+      println(c.mkString(" "))
     }
   }
 

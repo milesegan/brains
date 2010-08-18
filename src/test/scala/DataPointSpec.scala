@@ -1,22 +1,21 @@
 import org.scalatest.Spec
 import org.scalatest.matchers.ShouldMatchers
-import brains.data.NumericDataPoint
-import brains.data.StringDataPoint
+import brains.Data
 
 class DataPointSpec extends Spec with ShouldMatchers {
 
-  describe("NumericDataPoint") {
+  describe("Numeric Data") {
 
-    val testData = NumericDataPoint.readFile("data/iris.csv")
+    val testData = Data.loadNumberData("data/iris.csv")
     it ("should contain data") {
       testData.size should be > 0
     }
 
   }
 
-  describe("StringDataPoint") {
+  describe("String Data") {
 
-    val testData = StringDataPoint.readFile("data/mushroom.csv")
+    val testData = Data.loadStringData("data/mushroom.csv")
     it ("should contain data") {
       testData.size should be > 0
     }
