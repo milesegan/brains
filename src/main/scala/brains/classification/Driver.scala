@@ -29,7 +29,8 @@ abstract class Driver {
    */
   def main(args: Array[String]) = {
     val classKey = Symbol(args(0))
-    val data = util.Random.shuffle(Data.loadStringData(args(1)))
+    // specify types for shuffle to work around compiler bug
+    val data = util.Random.shuffle[Data.SPoint,IndexedSeq](Data.loadStringData(args(1))) 
     val mappedData = Data.extractFeature(classKey, data)
     val (testSet, trainingSet) = mappedData.splitAt(mappedData.size / 4)
     val m = method(trainingSet)

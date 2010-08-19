@@ -25,7 +25,8 @@ class Driver[M <: Method](implicit man: Manifest[M]) {
     val method = man.erasure.newInstance.asInstanceOf[M]
     val clusters = method.cluster(numClusters, data).sortBy(_.size)
     for (c <- clusters) {
-      println(c.mkString(" "))
+      println(c.map(_('class)).mkString(" "))
+      println()
     }
   }
 
