@@ -15,7 +15,7 @@ class ClassificationMethodSpec extends Spec with ShouldMatchers {
 
   describe("ClassificationMethods") {
 
-    val data = util.Random.shuffle(Data.loadStringData("data/mushroom.csv"))
+    val data = util.Random.shuffle[Data.SPoint,IndexedSeq](Data.loadStringData("data/mushroom.csv"))
     val classifiedData = Data.extractFeature('poisonous, data)
     val (testData, trainData) = classifiedData.splitAt(data.size / 4)
 
