@@ -3,6 +3,9 @@ import Process._
 
 class BrainsProject(info: ProjectInfo) extends DefaultProject(info) with Exec
 {
+
+  override def pomPath = "pom.xml"
+
   val scalatest = "org.scalatest" % "scalatest" % "1.2"
   
   def doClassify(classname:String, args:Array[String]) = runTask(Some(classname), runClasspath, args) dependsOn(compile)
