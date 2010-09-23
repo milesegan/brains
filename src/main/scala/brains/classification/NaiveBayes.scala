@@ -23,7 +23,7 @@ extends Method(trainingSet) {
   def classify(point: Data.SPoint): String = {
     val classes = for (c <- pm.classes) yield {
       val p = for ((feature,value) <- point) yield bayesProb(feature, value, c)
-      p.reduceLeft(_ * _) -> c
+      p.product -> c
     }
     classes.max._2
   }

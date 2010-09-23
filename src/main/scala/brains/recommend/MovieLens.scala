@@ -88,7 +88,7 @@ class MovieLens(movieFile: BufferedSource, ratingFile: BufferedSource) {
    */
   def meanAndDev(values: Seq[Double]): (Double,Double) = {
     val meanV = mean(values)
-    val squares = values.map { v => (v - meanV) * (v - meanV) }.reduceLeft(_ + _)
+    val squares = values.map { v => (v - meanV) * (v - meanV) }.sum
     meanV -> math.sqrt(squares / values.size)
   }
 }
