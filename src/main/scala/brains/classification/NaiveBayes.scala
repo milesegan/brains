@@ -13,17 +13,13 @@ extends Method(trainingSet) {
   private
   val pm = new ProbabilityMap(trainingSet)
 
-  private def bayesProb(feature: Symbol, value: String, klass: String): Double = {
-    val ip = for {pCF <- pm.pCF(feature, value, klass)
-                  pC <- pm.pC(klass) 
-                  pF <- pm.pF(feature, value)} yield (pCF * pC / pF)
-    ip getOrElse 0.1 / trainingSet.size // TODO: adjust this factor
-  }
-
   def classify(point: Data.SPoint): String = {
     val classes = for (c <- pm.classes) yield {
-      val p = for ((feature,value) <- point) yield bayesProb(feature, value, c)
-      p.product -> c
+      val p = for ((feature,value) <- point) yield {
+        val pCF = pm.pCF(feature, value, c)
+        pCF getOrElse 0.05 / trainingSet.size // TODO: adjust this factor
+      }
+      pm.pC(c).getOrElse(0d) * p.product / trainingSet.size -> c
     }
     classes.max._2
   }
