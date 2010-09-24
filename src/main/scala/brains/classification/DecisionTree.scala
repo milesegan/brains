@@ -55,9 +55,7 @@ extends Method(trainingData) {
     Node(bestF, Map.empty ++ children)
   }
 
-  private def entropy(p: Double) = -p * log2(p)
-
-  private def log2(x: Double): Double = math.log(x) / math.log(2d)
+  private def entropy(p: Double) = -p * math.log(p)
 
   def classify(p: Data.SPoint): String = {
 
