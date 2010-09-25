@@ -3,10 +3,15 @@ import Process._
 
 class BrainsProject(info: ProjectInfo) extends DefaultProject(info) with Exec
 {
-
   override def pomPath = "pom.xml"
 
+  val apacheRepo = "apache" at "http://repository.apache.org"
+  val scalalaNLPRepo = "scalanlp" at "http://repo.scalanlp.org/repo"
+  // we need this for deps for scalala
+  val rothamRepo = "rothamstead" at "http://ondex.rothamsted.bbsrc.ac.uk/nexus/content/groups/public/"
+
   val scalatest = "org.scalatest" % "scalatest" % "1.2"
+  val scalanlp = "org.scalanlp" % "scalala_2.8.0" % "0.4.1-SNAPSHOT"
   
   def doClassify(classname:String, args:Array[String]) = runTask(Some(classname), runClasspath, args) dependsOn(compile)
 
