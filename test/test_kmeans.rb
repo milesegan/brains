@@ -12,7 +12,6 @@ class KMeansTest < Test::Unit::TestCase
     end
     k = KMeans.new
     clusters = k.cluster(4, points)
-    puts clusters.inspect
     assert_equal clusters.size, 4
   end
   

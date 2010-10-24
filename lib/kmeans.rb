@@ -8,7 +8,7 @@ class KMeans
     while true
       newp = points.group_by { |p| closest_centroid(centroids, p) }
       newc = k.times.collect { |i| centroid(newp[i] || []) }
-      return newp if newc == centroids
+      return newp.values if newc == centroids
       centroids = newc
     end
   end
