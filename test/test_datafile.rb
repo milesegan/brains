@@ -4,7 +4,7 @@ class TestDataFile < Test::Unit::TestCase
   
   def test_it_loads
     d = DataFile.new("data/mushroom.csv")
-    assert_equal(d.names.first, "cap-shape")
+    assert_equal(d.names.first, :"cap-shape")
     c = []
     d.each_sample { |s| c << s }
     assert_equal c.size, d.size

@@ -6,7 +6,7 @@ class BayesTest < Test::Unit::TestCase
 
   def test_it_trains
     bc = Bayes.new
-    bc.train("class", ["f-a", "f-b", "f-c"])
+    bc.train("class", [[:f, "a"], [:f, "b"], [:f, "c"]])
     assert bc.count == 1
   end
 
@@ -26,10 +26,13 @@ class BayesTest < Test::Unit::TestCase
     d = DataFile.new("data/mushroom.csv")
     b = Bayes.new
     test, train = d.split(4)
-    train.each { |k,f| b.train(k, f) }
+    train.each do |k,f| 
+      b.train(k, d.names.zip(f))
+    end
     correct = 0
     10.times do |i|
-      if b.classify(test[i][1]).first.first == test[i][0]
+      p = d.names.zip(test[i][1])
+      if b.classify(p) == test[i][0]
         correct += 1
       end
     end

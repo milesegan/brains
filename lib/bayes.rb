@@ -47,7 +47,7 @@ class Bayes
       end
       [c, probs.inject { |a,b| a * b } * @pc.fetch(c, 0).to_f / @count]
     end
-    ranked.sort { |a,b| b.last <=> a.last }
+    ranked.sort { |a,b| b.last <=> a.last }.first.first
   end
 
   def to_json(*a)

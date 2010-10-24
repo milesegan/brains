@@ -11,6 +11,7 @@ class DataFile
       break unless line =~ /^\s*#/ # skip comments
     end
     klass, *@names = line.strip.split(@sep)
+    @names.collect! { |i| i.to_sym }
     @size = 0
     @samples = nil
   end
@@ -20,8 +21,7 @@ class DataFile
       @size += 1
       klass, *parts = f.strip.split(@sep)
       next unless parts.size == @names.size
-      features = @names.zip(parts).collect { |i| i.join("__") }
-      yield [klass, features]
+      yield [klass, parts]
     end
   end
 
