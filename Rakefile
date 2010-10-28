@@ -1,6 +1,10 @@
 $: << File.dirname(__FILE__)
 
-task :default do
-  # just run tests, nothing fancy
-  Dir["test/*.rb"].sort.each { |test| load test }
+require 'shoulda'
+require 'test/factory'
+
+task :default => [:test]
+
+task :test do
+  Dir["test/test*.rb"].sort.each { |test| load test }
 end

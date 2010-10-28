@@ -4,11 +4,11 @@ require 'lib/datafile'
 
 class KMeansTest < Test::Unit::TestCase
 
-  def test_it_clusters
-    d = DataFile.new("data/iris.csv")
+  def test_it_should_cluster
+    d = DataFile.make_real
     points = []
-    d.each_sample do |s| 
-      points << s.last.collect(&:to_f)
+    d.samples.each do |s| 
+      points << s.collect(&:to_f)
     end
     k = KMeans.new
     clusters = k.cluster(4, points)

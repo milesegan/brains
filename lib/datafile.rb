@@ -3,23 +3,29 @@
 class DataFile
 
   attr_reader :size, :names, :samples
+  SEP = /\s*,\s*/
 
-  def initialize(path)
-    @file = open(path)
-    @sep = /\s*,\s*/
-    while line = @file.readline
+  def self.load(path)
+    file = open(path)
+    while line = file.readline
       break unless line =~ /^\s*#/ # skip comments
     end
-    klass, *@names = line.strip.split(@sep)
-    @names.collect! { |i| i.to_sym }
-    @size = 0
-    @samples = nil
+    klass, *names = line.strip.split(SEP)
+    names.collect! { |i| i.to_sym }
+    d = DataFile.new
+    d.instance_eval do
+      @file = file
+      @size = 0
+      @samples = nil
+      @names = names
+    end
+    d
   end
 
   def each_sample
     @file.each_line do |f|
       @size += 1
-      klass, *parts = f.strip.split(@sep)
+      klass, *parts = f.strip.split(SEP)
       next unless parts.size == @names.size
       yield [klass, parts]
     end

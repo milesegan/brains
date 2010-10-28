@@ -11,7 +11,7 @@ class BayesTest < Test::Unit::TestCase
   end
 
   def test_it_loads_from_datafile
-    d = DataFile.new("data/mushroom.csv")
+    d = DataFile.load("data/mushroom.csv")
     b = Bayes.load_from_datafile(d)
     assert_equal b.count, 8124
   end
@@ -23,7 +23,8 @@ class BayesTest < Test::Unit::TestCase
   end
 
   def test_it_classifies
-    d = DataFile.new("data/mushroom.csv")
+    d = DataFile.load("data/mushroom.csv")
+    d.shuffle!
     b = Bayes.new
     test, train = d.split(4)
     train.each do |k,f| 
@@ -36,7 +37,7 @@ class BayesTest < Test::Unit::TestCase
         correct += 1
       end
     end
-    assert(correct.to_f / 10 >= 0.9, "bad classify")
+    assert correct.to_f / 10 >= 0.9, "bad classify"
   end
 
 end
