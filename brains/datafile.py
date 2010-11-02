@@ -1,3 +1,5 @@
+import random
+
 class DataFile(object):
     """Reads csv files containing class, feature lists. Streams to 
     save memory."""
@@ -19,3 +21,10 @@ class DataFile(object):
                 data = zip(s.features, parts)
                 s.count += 1
                 yield(klass, data)
+
+    def split(s, fraction):
+        allp = [p for p in s.points()]
+        random.shuffle(allp)
+        split = len(allp) / fraction
+        return (allp[:split], allp[split:])
+        

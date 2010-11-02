@@ -16,22 +16,25 @@ class Bayes(object):
         s.pc.setdefault(klass, 0)
         s.pc[klass] += 1
         for feat, val in features:
-            s.pf.setdefault((feat, val), 0)
-            s.pf[(feat, val)] += 1
-            s.pfc.setdefault((feat, val, klass), 0)
-            s.pfc[(feat, val, klass)] += 1
+            s.pf.setdefault(feat, dict())
+            s.pf[feat].setdefault(val, 0)
+            s.pf[feat][val] += 1
+            s.pfc.setdefault(feat, dict())
+            s.pfc[feat].setdefault(val, dict())
+            s.pfc[feat][val].setdefault(klass, 0)
+            s.pfc[feat][val][klass] += 1
         s.count += 1
 
     def classify(s, features):
         ranked = []
-        for c in s.pc.keys():
+        for klass in s.pc.iterkeys():
             p = 1
-            for f in features:
-                pfckey = f + (c,)
-                if s.pfc.has_key(pfckey):
-                    p *= s.pfc.get(pfckey) / s.count
+            for feat, val in features:
+                c = s.pfc.get(feat, {}).get(val, {}).get(klass, None)
+                if c:
+                    p *= c / s.count
                 else:
                     p *= 0.01 / s.count # TODO: adjust this
-            ranked.append((p * s.pc.get(c, 0.0), c))
+            ranked.append((p * s.pc.get(klass, 0.0), klass))
         ranked.sort()
         return ranked[-1][1]
