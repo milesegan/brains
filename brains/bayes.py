@@ -2,39 +2,26 @@
 
 from __future__ import division
 import random
-import os, re, sys
+from brains import ProbabilityMap
 
 class Bayes(object):
 
-    def __init__(s):
-        s.pc = {}
-        s.pf = {}
-        s.pfc = {}
-        s.count = 0.0
+    def __init__(s, features):
+        s.pmap = ProbabilityMap()
 
     def train(s, klass, features):
-        s.pc.setdefault(klass, 0)
-        s.pc[klass] += 1
-        for feat, val in features:
-            s.pf.setdefault(feat, dict())
-            s.pf[feat].setdefault(val, 0)
-            s.pf[feat][val] += 1
-            s.pfc.setdefault(feat, dict())
-            s.pfc[feat].setdefault(val, dict())
-            s.pfc[feat][val].setdefault(klass, 0)
-            s.pfc[feat][val][klass] += 1
-        s.count += 1
+        s.pmap.update(klass, features)
 
     def classify(s, features):
         ranked = []
-        for klass in s.pc.iterkeys():
+        for klass in s.pmap.pc.iterkeys():
             p = 1
-            for feat, val in features:
-                c = s.pfc.get(feat, {}).get(val, {}).get(klass, None)
+            for feat, val in features.items():
+                c = s.pmap.getpfc(feat, val, klass)
                 if c:
-                    p *= c / s.count
+                    p *= c / s.pmap.count
                 else:
-                    p *= 0.01 / s.count # TODO: adjust this
-            ranked.append((p * s.pc.get(klass, 0.0), klass))
+                    p *= 0.01 / s.pmap.count # TODO: adjust this
+            ranked.append((p * s.pmap.pc.get(klass, 0.0), klass))
         ranked.sort()
         return ranked[-1][1]
