@@ -1,5 +1,6 @@
-import unittest
+from __future__ import division
 
+import unittest
 import brains
 
 class DecisionTreeTestCase(unittest.TestCase):
@@ -8,4 +9,9 @@ class DecisionTreeTestCase(unittest.TestCase):
         f = brains.DataFile("data/mushroom.csv")
         test, train = f.split(4)
         d = brains.DecisionTree(f.features, train)
-        #s.assertEqual(d.count, 8192)
+        correct = 0
+        for t in test:
+            c = d.classify(t[1])
+            if c == t[0]:
+                correct += 1
+        s.assertGreater(correct, 0.9)

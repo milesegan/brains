@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 sdict = {
-    'name': "brains",
-    'version': "0.1",
-    'test_suite' : "tests"
+    "author": "Miles Egan",
+    "author_email": "milesegan@gmail.com",
+    "name": "brains",
+    "version": "0.1",
+    "test_suite" : "tests"
 }
 
 try:
