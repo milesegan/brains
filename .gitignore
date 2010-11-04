@@ -1,6 +1,8 @@
 .idea
 *.iml
-*jar
+*.jar
+*.pyc
+brains.egg-info
 lib
 classes
 build
