@@ -1,7 +1,5 @@
 class ProbabilityMap(object):
-
     """Maps counts features + values => classes."""
-
     def __init__(s, points = []):
         s.count = 0
         s.pc = {} # class probability
@@ -11,6 +9,8 @@ class ProbabilityMap(object):
             s.update(p[0], p[1])
 
     def update(s, klass, features):
+        """Add a new sample of class klass with features to the map."""
+        assert klass and features
         s.count += 1
         s.pc.setdefault(klass, 0)
         s.pc[klass] += 1
@@ -25,6 +25,7 @@ class ProbabilityMap(object):
 
     def getpfc(s, feature, value, klass):
         """Helper function to index feature + value => class."""
+        assert feature and value and klass
         return s.pfc.get(feature, {}).get(value, {}).get(klass, None)
 
     def feature_values(s, feature):
