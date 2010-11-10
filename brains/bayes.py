@@ -1,18 +1,23 @@
-# simple bayesian classifier in python
-
 from __future__ import division
 import random
 from brains import ProbabilityMap
 
 class Bayes(object):
-
-    def __init__(s, features):
+    "Naive bayes classifier."
+    def __init__(s):
         s.pmap = ProbabilityMap()
 
     def train(s, klass, features):
+        "Adds the sample with given class and features."
         s.pmap.update(klass, features)
 
+    @property
+    def count(s):
+        "Returns the number of samples trained by this classifier."
+        return s.pmap.count
+
     def classify(s, features):
+        "Classifies the sample with features. Returns most probable class"
         ranked = []
         for klass in s.pmap.pc.iterkeys():
             p = 1

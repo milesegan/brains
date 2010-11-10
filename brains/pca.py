@@ -3,6 +3,8 @@ import numpy as np
 def pca(data):
     """Finds principal components of data and generates
     transformed dataset."""
+
+    # build covariance matrix and find eigenvalues and vectors
     s = np.cov(data, rowvar = 0)
     evals, evecs = np.linalg.eig(s)
 

@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 class NeuralNet(object):
-    """Basic single-layer neural net implementation."""
+    "Basic single-layer neural net implementation."
     def __init__(s, n_inputs, n_outputs, n_hidden):
         assert n_inputs > 0 and n_outputs > 0 and n_hidden > 0
         s.eta = 0.1 # learning rate
@@ -15,7 +15,7 @@ class NeuralNet(object):
         s.oweights = (np.random.rand(n_hidden, n_outputs) - 0.5) * 2 / math.sqrt(n_hidden)
 
     def train(s, inputs, outputs):
-        """Trains the network with the given sample."""
+        "Trains the network with the given sample."
         assert inputs.shape[1] == s.n_inputs
         assert outputs.shape[1] == s.n_outputs
         iterations = 0
@@ -41,7 +41,7 @@ class NeuralNet(object):
             iterations += 1
 
     def process(s, inputs):
-        """Runs the neural net on the given inputs."""
+        "Runs the neural net on the given inputs."
         assert inputs.shape[1] == s.n_inputs
         hact = inputs.dot(s.iweights)
         hact = 1 / (1 + np.exp(-hact))

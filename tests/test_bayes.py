@@ -6,7 +6,7 @@ class BayesTestCase(unittest.TestCase):
 
     def test_classify(s):
         f = brains.DataFile("data/mushroom.csv")
-        b = brains.Bayes(f.features)
+        b = brains.Bayes()
         test, train = f.split(4)
         for p in train:
             b.train(p[0], p[1])
@@ -16,6 +16,7 @@ class BayesTestCase(unittest.TestCase):
             if t[0] == predict:
                 correct += 1
         s.assertGreater(correct / len(test), 0.9)
+
 
 
 

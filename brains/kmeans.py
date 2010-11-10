@@ -1,10 +1,10 @@
 import random
 
 class KMeans(object):
-    """Clusters data points by k-means method."""
+    "Clusters data points by k-means method."
 
     def cluster(s, k, points):
-        """Clusters by euclidean distance."""
+        "Clusters by euclidean distance. Returns clustered points as a list."
         assert k > 0 and points is not None
         centroids = s.__pick_initial_centroids(k, points)
         while True:

@@ -4,12 +4,14 @@ import math
 from brains import ProbabilityMap
 
 class DecisionTree(object):
-
+    "Decision tree classifier."
     def __init__(s, features, points):
+        "Builds the decision tree for features from supplied samples in points."
         s.most_common_class = None
         s.tree = s.__train(points)
 
     def classify(s, features):
+        "Returns the class predicted for the given features."
         tree = s.tree
         while True:
             v = features.get(tree[0], None)
