@@ -20,6 +20,6 @@ def pca(data):
 
     # find new array with principal components
     datam = data - data.mean(axis = 0)
-    z = np.dot(weights, datam.T) # transpose datam because samples are rows
+    z = weights.dot(datam.T) # transpose datam because samples are rows
     return z.T
 
