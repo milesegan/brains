@@ -1,13 +1,12 @@
 import random
 import unittest
 
-from brains import DataFile, KMeans
+from brains import DataFile, SingleLink
 
-class TestKMeans(unittest.TestCase):
-
+class TestSingleLink(unittest.TestCase):
     def test_cluster(s):
         d = DataFile("data/iris.csv", float)
-        k = KMeans()
+        k = SingleLink()
         points = [p[1] for p in d.points()]
         random.shuffle(points)
         clust = k.cluster(3, points)

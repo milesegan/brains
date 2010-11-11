@@ -5,7 +5,9 @@ sdict = {
     "author_email": "milesegan@gmail.com",
     "name": "brains",
     "version": "0.1",
-    "test_suite" : "tests"
+    "test_suite" : "tests",
+    "url": "http://github.com/cageface/brains",
+    "packages": ['brains']
 }
 
 try:

@@ -30,10 +30,10 @@ class KMeans(object):
 
     def __distance(s, a, b):
         assert a and b
-        dist = []
+        dist = 0
         for k in a.keys():
-            dist.append((a[k] - b[k]) ** 2)
-        return sum(dist)
+            dist += (a[k] - b[k]) ** 2
+        return dist
 
     def __centroid(s, points):
         if not points:

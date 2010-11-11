@@ -4,6 +4,7 @@ from brains.bayes import Bayes
 from brains.decision_tree import DecisionTree
 from brains.pca import pca
 from brains.kmeans import KMeans
+from brains.single_link import SingleLink
 from brains.neural_net import NeuralNet
 
 
