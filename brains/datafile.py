@@ -22,7 +22,7 @@ class DataFile(object):
     def points(s):
         for line in s.file:
             parts = line.strip().split(DataFile.SEP)
-            klass = parts[0]
+            klass, parts = parts[0], parts[1:]
             if s.transform_func:
                 parts = [s.transform_func(p) for p in parts]
             data = zip(s.features, parts)

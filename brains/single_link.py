@@ -5,12 +5,12 @@ class SingleLink(object):
 
     def cluster(s, k, points):
         "Returns points in k clusters, as a list."
-        assert k > 0 and points
+        assert k and points
         distance = 0.1
         while True:
             # loop with increasing distance until 
             # cluster size is correct
-            distance += 0.1 # TODO: this may need tuning/parameterization
+            distance *= 1.1 # TODO: this may need tuning/parameterization
             clusters = []
             allp = points
             while allp:

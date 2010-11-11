@@ -38,7 +38,6 @@ class KMeans(object):
     def __centroid(s, points):
         if not points:
             return None
-
         sums = {}
         for k in points[0].keys():
             for p in points:
