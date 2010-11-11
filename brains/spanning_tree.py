@@ -11,7 +11,7 @@ class SpanningTree(object):
         while True:
             # iteratively increase distance tolerance until
             # k clusters form
-            distance += 0.1 # TODO: tune or parameterize this
+            distance *= 1.1 # TODO: tune or parameterize this
             clusters, allp = [[points[0]]], points[1:]
             while allp:
                 # find closest point
