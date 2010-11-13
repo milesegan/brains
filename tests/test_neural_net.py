@@ -22,5 +22,3 @@ class TestNeuralNet(unittest.TestCase):
         for i in range(len(p)):
             continue
             print testtargets[i], p[i]
-
-

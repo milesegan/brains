@@ -17,6 +17,7 @@ clustering, and regression methods.
 * neural net
 
 ## testing
-To run a quick test try this:
-
-python setup.py test
+To run the tests, install nose and execute this command in
+the root of the brains distribution:
+    
+    nosetests -v
