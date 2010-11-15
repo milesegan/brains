@@ -1,61 +1,37 @@
-require 'json'
+# Naive bayes classifier.
 
 class Bayes
-
-  attr_reader :count, :pc, :pf, :pcf
-
-  def self.load_from_json(json)
-    json = JSON.load(json)
-    Bayes.new(json)
-  end
-
-  def self.load_from_datafile(file)
-    b = Bayes.new
-    file.each_sample do |klass,features|
-      b.train(klass, features)
-    end
-    b
-  end
-
-  def initialize(attrs = {})
-    @count = 0
+  attr_reader :count, :pc, :pf
+  def initialize()
+    @count = 0.0
     @pc = {}
     @pf = {}
-    @pcf = {}
-    attrs.each do |k,v|
-      instance_variable_set k, v
-    end
   end
 
-  def train(klass, features)
-    @count += 1
-    @pc[klass] ||= 0
-    @pc[klass] += 1
-    features.each do |f|
-      @pf[f] ||= 0
-      @pf[f] += 1
-      @pcf[f] ||= {}
-      @pcf[f][klass] ||= 0
-      @pcf[f][klass] += 1
+  def train(points)
+    points.each do |klass,features|
+      @count += 1
+      @pc[klass] ||= 0
+      @pc[klass] += 1
+      features.each do |f,v|
+        @pf[f] ||= {}
+        @pf[f][v] ||= {}
+        @pf[f][v][klass] ||= 0
+        @pf[f][v][klass] += 1
+      end
     end
   end
 
   def classify(features)
-    ranked = @pc.keys.collect do |c|
-      probs = features.collect do |f|
-        @pcf.fetch(f, {}).fetch(c, 0.05).to_f / @count
+    probs = {}
+    @pc.keys.each do |klass|
+      p = 1.0
+      features.each do |f,v|
+        p *= @pf.fetch(f, {}).fetch(v, {}).fetch(klass, 0.01) / @count
       end
-      [c, probs.inject { |a,b| a * b } * @pc.fetch(c, 0).to_f / @count]
+      probs[klass] = p
     end
-    ranked.sort { |a,b| b.last <=> a.last }.first.first
-  end
-
-  def to_json(*a)
-    h = {}
-    instance_variables.each do |i|
-      h[i] = instance_variable_get(i)
-    end
-    h.to_json(*a)
+    probs.to_a.sort { |a,b| b.last <=> a.last }.first.first
   end
 
 end
