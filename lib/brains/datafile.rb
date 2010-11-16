@@ -1,3 +1,5 @@
+module Brains
+
 # datafile loading class
 class DataFile
 
@@ -32,5 +34,7 @@ class DataFile
     index = all.size / fraction
     [all[0..index-1], all[index..-1]]
   end
+
+end
 
 end

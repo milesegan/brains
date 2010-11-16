@@ -1,6 +1,7 @@
+module Brains
+
 # Classifies by K-Means method
 # http://en.wikipedia.org/wiki/K-means_clustering
-
 class KMeans
 
   # Clusters points into k clusters by euclidean distance.
@@ -47,5 +48,7 @@ class KMeans
     end
     c
   end
+
+end
 
 end

@@ -1,4 +1,8 @@
-class DataFile
+$: << File.join(File.dirname(__FILE__), "..", "lib")
+
+require "brains"
+
+class Brains::DataFile
 
   FEATURES = "one two three four five six".split
 

@@ -1,5 +1,6 @@
-# Naive bayes classifier.
+module Brains
 
+# Naive bayes classifier.
 class Bayes
   attr_reader :count, :pc, :pf
   def initialize()
@@ -33,5 +34,7 @@ class Bayes
     end
     probs.to_a.sort { |a,b| b.last <=> a.last }.first.first
   end
+
+end
 
 end

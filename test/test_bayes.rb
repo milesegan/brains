@@ -1,19 +1,20 @@
+$: << File.join(File.dirname(__FILE__), "..", "lib")
+
 require 'test/unit'
-require 'lib/bayes'
-require 'lib/datafile'
+require 'brains'
 
 class BayesTest < Test::Unit::TestCase
 
   def test_it_trains
-    d = DataFile.new("data/mushroom.csv")
-    b = Bayes.new
+    d = Brains::DataFile.new("data/mushroom.csv")
+    b = Brains::Bayes.new
     b.train(d)
     assert_equal b.count, 8124
   end
 
   def test_it_classifies
-    d = DataFile.new("data/mushroom.csv")
-    b = Bayes.new
+    d = Brains::DataFile.new("data/mushroom.csv")
+    b = Brains::Bayes.new
     test, train = d.split(4, true)
     b.train(train)
     correct = 0
