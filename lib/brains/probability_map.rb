@@ -12,6 +12,22 @@ class ProbabilityMap
     train(points) if points
   end
 
+  def classes
+    @pc.keys
+  end
+
+  def features
+    @pf.keys
+  end
+
+  def most_common_class
+    @pc.to_a.sort { |a,b| a.last <=> b.last }.last.first
+  end
+
+  def getpfc(feature, value, klass)
+    @pf.fetch(feature, {}).fetch(value, {})[klass]
+  end
+
   def train(points)
     points.each do |klass,features|
       @count += 1

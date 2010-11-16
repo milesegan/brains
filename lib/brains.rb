@@ -1,4 +1,5 @@
 require "brains/datafile"
+require "brains/probability_map"
 require "brains/kmeans"
 require "brains/bayes"
 require "brains/decision_tree"

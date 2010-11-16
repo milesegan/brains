@@ -1,68 +1,84 @@
+module Brains
+
 # A decision-tree classifier.
 class DecisionTree
-=begin
-    def __init__(s, features, points):
-        "Builds the decision tree for features from supplied samples in points."
-        s.most_common_class = None
-        s.tree = s.__train(points)
 
-    def classify(s, features):
-        "Returns the class predicted for the given features."
-        tree = s.tree
-        while True:
-            v = features.get(tree[0], None)
-            if v == None:
-                return s.most_common_class
-            n = tree[1].get(v, None)
-            if n == None:
-                return s.most_common_class
-            elif type(n) == str:
-                return n
-            else:
-                tree = n
+  def initialize(points)
+    @most_common_class = nil
+    @tree = train(points)
+  end
 
-    def __train(s, points):
-        if len(points) == 0:
-            return None
+  # Returns the class predicted for the given features.
+  def classify(features)
+    tree = @tree
+    while true
+      v = features[tree[0]]
+      return @most_common_class unless v
+      n = tree[1][v]
+      if n.nil?
+        return @most_common_class
+      elsif n.class == String
+        return n
+      else
+        tree = n
+      end
+    end
+  end
 
-        pm = ProbabilityMap(points)
-        if s.most_common_class == None:
-            # save for later as default value
-            s.most_common_class = pm.most_common_class
-        if len(pm.classes) == 1:
-            return pm.classes[0]
-        if len(pm.features) == 0:
-            return None
+  private
+  def train(points)
+    return nil if points.empty?
 
-        # find highest entropy feature to split with
-        igains = [(s.__info_gain(f, pm), f) for f in pm.features]
-        igains.sort()
-        igains.reverse()
-        best = igains[0][1]
-        rest = [f[1] for f in igains[1:]]
-        tree = [best, {}]
-        
-        # split remaining data points on best feature
-        for val in pm.feature_values(best):
-            newp = []
-            for p in points:
-                if p[1].get(best, None) == val:
-                    del p[1][best]
-                    newp.append(p)
-            tree[1][val] = s.__train(newp)
-        return tree
+    pm = ProbabilityMap.new(points)
+    if @most_common_class.nil?
+      # save for later as default value
+      @most_common_class = pm.most_common_class
+    end
+    return pm.classes.first if pm.classes.size == 1
+    return nil if pm.features.empty?
 
-    def __info_gain(s, feature, pm):
-        class_e = [s.__entropy(pm.pc[c] / pm.count) for c in pm.pc.keys()]
-        all_e = []
-        for c in pm.pc.keys():
-            for v, pv in pm.pf.get(feature, {}).items():
-                p = pm.getpfc(feature, v, c)
-                if p:
-                    all_e.append(s.__entropy(p / pm.count) * pv / pm.count)
-        return sum(class_e) - sum(all_e)
+    # find highest entropy feature to split with
+    igains = pm.features.collect { |f| [info_gain(f, pm), f] }.sort.reverse
+    best = igains.shift.last
+    rest = igains.collect(&:last)
+    tree = [best, {}]
+    
+    # split remaining data points on best feature
+    pm.pf[best].keys.each do |val|
+      newp = []
+      points.each do |p|
+        if p[1][best] == val
+          p[1].delete(best)
+          newp << p
+        end
+      end
+      tree[1][val] = train(newp)
+    end
+    tree
+  end
 
-    def __entropy(s, p):
-        return -p * math.log(p)
-=end
+  def info_gain(feature, pm)
+    class_e = pm.pc.keys.collect { |c| entropy(pm.pc[c] / pm.count) }
+    all_e = []
+    pm.pc.keys.each do |c|
+      pm.pf.fetch(feature, {}).each do |v,pv|
+        pv = sum(pv.values)
+        p = pm.getpfc(feature, v, c)
+        if p
+          all_e << entropy(p / pm.count) * pv / pm.count
+        end
+      end
+    end
+    sum(class_e) - sum(all_e)
+  end
+
+  def sum(vals)
+    vals.inject(0) { |a,b| a + b }
+  end
+
+  def entropy(p)
+    -p * Math.log(p)
+  end
+end
+
 end
