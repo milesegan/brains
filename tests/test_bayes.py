@@ -15,9 +15,4 @@ class BayesTestCase(unittest.TestCase):
             predict = b.classify(t[1])
             if t[0] == predict:
                 correct += 1
-        s.assertGreater(correct / len(test), 0.9)
-
-
-
-
-        
+        assert correct / len(test) > 0.9

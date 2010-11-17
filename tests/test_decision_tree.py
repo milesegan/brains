@@ -14,4 +14,4 @@ class DecisionTreeTestCase(unittest.TestCase):
             c = d.classify(t[1])
             if c == t[0]:
                 correct += 1
-        s.assertGreater(correct, 0.9)
+        assert correct / len(test) > 0.9

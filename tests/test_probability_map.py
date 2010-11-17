@@ -9,9 +9,9 @@ class ProbabilityMapTestCase(unittest.TestCase):
         p.update("foo", {"fob": "1", "foc": "2", "fod": "3"})
         p.update("foo", {"fob": "4", "foc": "5", "fod": "6"})
         p.update("bar", {"bar": "1", "bar": "2", "bar": "3"})
-        s.assertEquals(p.count, 3)
-        s.assertEquals(p.most_common_class, "foo")
-        s.assertEquals(p.classes, ["bar", "foo"])
-        s.assertEquals(p.features, ["bar", "fob", "foc", "fod"])
-        s.assertEquals(p.feature_values("fob"), ["1", "4"])
+        assert p.count == 3
+        assert p.most_common_class == "foo"
+        assert p.classes == ["bar", "foo"]
+        assert p.features == ["bar", "fob", "foc", "fod"]
+        assert p.feature_values("fob") == ["1", "4"]
 

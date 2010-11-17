@@ -11,5 +11,5 @@ class TestSingleLink(unittest.TestCase):
         random.shuffle(points)
         clust = k.cluster(3, points)
         lengths = [len(i) for i in clust]
-        s.assertEqual(sum(lengths), d.count)
-        s.assertEqual(len(clust), 3)
+        assert sum(lengths) == d.count
+        assert len(clust) == 3
