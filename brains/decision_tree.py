@@ -8,7 +8,7 @@ class DecisionTree(object):
     def __init__(s, features, points):
         "Builds the decision tree for features from supplied samples in points."
         s.most_common_class = None
-        s.tree = s.__train(points)
+        s.tree = s._train(points)
 
     def classify(s, features):
         "Returns the class predicted for the given features."
@@ -25,7 +25,7 @@ class DecisionTree(object):
             else:
                 tree = n
 
-    def __train(s, points):
+    def _train(s, points):
         if len(points) == 0:
             return None
 
@@ -39,7 +39,7 @@ class DecisionTree(object):
             return None
 
         # find highest entropy feature to split with
-        igains = [(s.__info_gain(f, pm), f) for f in pm.features]
+        igains = [(s._info_gain(f, pm), f) for f in pm.features]
         igains.sort()
         igains.reverse()
         best = igains[0][1]
@@ -53,18 +53,18 @@ class DecisionTree(object):
                 if p[1].get(best, None) == val:
                     del p[1][best]
                     newp.append(p)
-            tree[1][val] = s.__train(newp)
+            tree[1][val] = s._train(newp)
         return tree
 
-    def __info_gain(s, feature, pm):
-        class_e = [s.__entropy(pm.pc[c] / pm.count) for c in pm.pc.keys()]
+    def _info_gain(s, feature, pm):
+        class_e = [s._entropy(pm.pc[c] / pm.count) for c in pm.pc.keys()]
         all_e = []
         for c in pm.pc.keys():
             for v, pv in pm.pf.get(feature, {}).items():
                 p = pm.getpfc(feature, v, c)
                 if p:
-                    all_e.append(s.__entropy(p / pm.count) * pv / pm.count)
+                    all_e.append(s._entropy(p / pm.count) * pv / pm.count)
         return sum(class_e) - sum(all_e)
 
-    def __entropy(s, p):
+    def _entropy(s, p):
         return -p * math.log(p)

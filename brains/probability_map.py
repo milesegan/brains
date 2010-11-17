@@ -31,12 +31,17 @@ class ProbabilityMap(object):
     def feature_values(s, feature):
         "Returns all observed values for feature."
         return sorted(s.pf.get(feature, {}).keys())
-
-    def __most_common_class(s):
+    
+    @property
+    def most_common_class(s):
         i = sorted(s.pc.items(), lambda a,b: cmp(b[0], a[0]))
         return i[0][0]
 
-    classes = property(lambda s: sorted(s.pc.keys()))
-    features = property(lambda s: sorted(s.pf.keys()))
-    most_common_class = property(lambda s: s.__most_common_class())
+    @property
+    def classes(s):
+        return sorted(s.pc.keys())
+
+    @property
+    def features(s):
+        return sorted(s.pf.keys())
 

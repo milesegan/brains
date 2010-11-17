@@ -48,4 +48,3 @@ class NeuralNet(object):
         oact = hact.dot(s.oweights)
         oact = 1 / (1 + np.exp(-oact))
         return hact, oact
-    

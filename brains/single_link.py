@@ -19,7 +19,7 @@ class SingleLink(object):
                 close = []
                 far = []
                 for i in others:
-                    if s.__distance(p, i) < distance:
+                    if s._distance(p, i) < distance:
                         close.append(i)
                     else:
                         far.append(i)
@@ -29,7 +29,7 @@ class SingleLink(object):
             if len(clusters) <= k:
                 return clusters
             
-    def __distance(s, a, b):
+    def _distance(s, a, b):
         "Calculates euclidean distance between a and b."
         # TODO: refactor this in common with kmeans
         assert a and b

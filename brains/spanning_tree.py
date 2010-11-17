@@ -16,8 +16,8 @@ class SpanningTree(object):
             while allp:
                 # find closest point
                 head = clusters[-1][-1]
-                allp.sort(key = lambda p: s.__distance(p, head))
-                if s.__distance(head, allp[0]) < distance:
+                allp.sort(key = lambda p: s._distance(p, head))
+                if s._distance(head, allp[0]) < distance:
                     # within distance, extend tree
                     clusters[-1].append(allp[0])
                 else:
@@ -27,7 +27,7 @@ class SpanningTree(object):
             if len(clusters) <= k:
                 return clusters
 
-    def __distance(s, a, b):
+    def _distance(s, a, b):
         "Calculates euclidean distance between a and b."
         # TODO: refactor this in common with kmeans
         dist = 0
