@@ -10,6 +10,7 @@ class BayesTestCase(unittest.TestCase):
         test, train = f.split(4)
         for p in train:
             b.train(p[0], p[1])
+        assert b.count == len(train)
         correct = 0.0
         for t in test:
             predict = b.classify(t[1])

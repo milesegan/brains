@@ -15,10 +15,10 @@ class DecisionTree(object):
         tree = s.tree
         while True:
             v = features.get(tree[0], None)
-            if v == None:
+            if not v:
                 return s.most_common_class
             n = tree[1].get(v, None)
-            if n == None:
+            if not n:
                 return s.most_common_class
             elif type(n) == str:
                 return n

@@ -1,13 +1,6 @@
-.idea
-*.iml
-*.jar
+.coverage
 *.pyc
 brains.egg-info
-lib
-classes
-build
-target
-project/boot
 TAGS
 
 
