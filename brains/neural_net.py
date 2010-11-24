@@ -20,11 +20,12 @@ class NeuralNet(object):
         assert outputs.shape[1] == s.n_outputs
         iterations = 0
         order = range(inputs.shape[0])
-        while iterations < 2000:
+        while iterations < 4000:
             # find activations and error
             hact, oact = s.process(inputs)
             error = 0.5 * ((outputs - oact) ** 2).sum() / len(inputs)
-            if error < 0.005: break
+            if error < 0.0005: 
+                break
             oerr = (outputs - oact) * oact * (1.0 - oact)
             herr = hact * (1 - hact) * oerr.dot(s.oweights.T)
 

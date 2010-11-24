@@ -1,8 +1,11 @@
+from __future__ import division
+
 import numpy as np
 
-def pca(data):
+def pca(data, threshold = 0.9):
     """Finds principal components of data and generates
-    transformed dataset."""
+    transformed dataset. Threshold is the minimum 
+    fraction of total entropy desired in new dataset."""
 
     # build covariance matrix and find eigenvalues and vectors
     s = np.cov(data, rowvar = 0)
@@ -14,7 +17,7 @@ def pca(data):
     idx.sort(lambda a, b: cmp(evals[b], evals[a]))
     e = 0
     bestevals = []
-    while e / energy < 0.9:
+    while e / energy < threshold:
         e += evals[idx[0]]
         bestevals.append(idx[0])
         idx = idx[1:]
